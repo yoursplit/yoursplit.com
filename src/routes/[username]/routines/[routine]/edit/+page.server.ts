@@ -47,6 +47,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
       id: day.id,
       day_label: day.day_label ?? undefined,
       notes: day.notes ?? undefined,
+      marked_for_deletion: false,
       workout_exercises: (workoutExercisesData ?? []).map((exercise) => ({
         id: exercise.id,
         name: exercise.name,
@@ -64,6 +65,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     slug: workoutRoutineData.slug,
     description: workoutRoutineData.description ?? undefined,
     uses_numbered_days: workoutRoutineData.uses_numbered_days,
+    deleted_day_ids: [],
     workout_days: [
       ...workoutDaysWithExercises,
     ],
@@ -74,6 +76,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
       id: undefined,
       day_label: undefined,
       notes: undefined,
+      marked_for_deletion: false,
       workout_exercises: [],
     });
   }
@@ -141,8 +144,42 @@ export const actions: Actions = {
 
     const existingDayIds = new Set((existingDaysData ?? []).map((day) => day.id));
 
-    for (let i = 0; i < workoutForm.data.workout_days.length; i++) {
-      const submittedDay = workoutForm.data.workout_days[i];
+    const dayIdsMarkedForDeletion = [
+      ...new Set([
+        ...workoutForm.data.deleted_day_ids.filter((id) => existingDayIds.has(id)),
+        ...workoutForm.data.workout_days
+          .filter((day) => day.marked_for_deletion && !!day.id && existingDayIds.has(day.id))
+          .map((day) => day.id as number),
+      ]),
+    ];
+
+    if (dayIdsMarkedForDeletion.length > 0) {
+      const { error: deleteMarkedExercisesError } = await supabase
+        .from('workout_exercises')
+        .delete()
+        .in('workout_day_id', dayIdsMarkedForDeletion);
+      if (deleteMarkedExercisesError) {
+        console.log('Delete marked exercises error:');
+        console.log(deleteMarkedExercisesError);
+        error(500);
+      }
+
+      const { error: deleteMarkedDaysError } = await supabase
+        .from('workout_days')
+        .delete()
+        .in('id', dayIdsMarkedForDeletion)
+        .eq('workout_routine_id', existingRoutineData.id);
+      if (deleteMarkedDaysError) {
+        console.log('Delete marked days error:');
+        console.log(deleteMarkedDaysError);
+        error(500);
+      }
+    }
+
+    const submittedDaysToKeep = workoutForm.data.workout_days.filter((day) => !day.marked_for_deletion);
+
+    for (let i = 0; i < submittedDaysToKeep.length; i++) {
+      const submittedDay = submittedDaysToKeep[i];
       const dayNumber = i + 1;
       let savedDayId: number;
 
@@ -227,6 +264,29 @@ export const actions: Actions = {
             console.log(insertExerciseError);
             error(500);
           }
+        }
+      }
+
+      const submittedExistingExerciseIds = new Set(
+        submittedDay.workout_exercises
+          .map((exercise) => exercise.id)
+          .filter((id): id is number => !!id)
+      );
+
+      const exerciseIdsToDelete = (existingExercisesData ?? [])
+        .map((exercise) => exercise.id)
+        .filter((id) => !submittedExistingExerciseIds.has(id));
+
+      if (exerciseIdsToDelete.length > 0) {
+        const { error: deleteExercisesError } = await supabase
+          .from('workout_exercises')
+          .delete()
+          .in('id', exerciseIdsToDelete)
+          .eq('workout_day_id', savedDayId);
+        if (deleteExercisesError) {
+          console.log('Delete exercises error:');
+          console.log(deleteExercisesError);
+          error(500);
         }
       }
     }

@@ -5,7 +5,9 @@
   import * as InputGroup from '$lib/components/ui/input-group';
   import { Textarea } from '$lib/components/ui/textarea';
   import * as Alert from '$lib/components/ui/alert';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import * as Accordion from '$lib/components/ui/accordion';
+  import { Accordion as AccordionPrimitive } from 'bits-ui';
   import { Button } from '$lib/components/ui/button';
   import { toast } from 'svelte-sonner';
   import {
@@ -17,10 +19,13 @@
   import { workoutFormSchema, type WorkoutFormSchema } from './workout-form-schema';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+  import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+  import Trash2Icon from '@lucide/svelte/icons/trash-2';
 
   let { data }: { data: { workoutForm: SuperValidated<Infer<WorkoutFormSchema>> } } = $props();
 
   let saveError = $state(false);
+  let deleteDialogOpen = $state<boolean[]>([]);
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const getDayTitle = (index: number, usesNumberedDays: boolean) => {
@@ -29,6 +34,21 @@
     }
 
     return weekdays[index % weekdays.length];
+  };
+
+  const setDeleteDialogOpen = (index: number, open: boolean) => {
+    deleteDialogOpen[index] = open;
+    deleteDialogOpen = deleteDialogOpen;
+  };
+
+  const markDayForDeletion = (index: number) => {
+    const dayId = $formData.workout_days[index]?.id;
+    if (dayId) {
+      $formData.deleted_day_ids.push(dayId);
+    }
+    $formData.workout_days.splice(index, 1);
+    $formData = $formData;
+    setDeleteDialogOpen(index, false);
   };
 
   const workoutForm = superForm(data.workoutForm, {
@@ -108,6 +128,7 @@
     <Button onclick={() => {
       $formData.workout_days.push({
         day_label: undefined,
+        marked_for_deletion: false,
         workout_exercises: []
       });
       $formData = $formData;
@@ -116,9 +137,56 @@
     <Accordion.Root class="border rounded-lg px-4" type="single" value="0">
       {#each $formData.workout_days as day, index}
         <Accordion.Item value={index.toString()}>
-          <Accordion.Trigger class="text-lg">
-            {getDayTitle(index, $formData.uses_numbered_days)}
-          </Accordion.Trigger>
+          <AccordionPrimitive.Header level={3} class="flex items-center gap-2 border-b last:border-b-0">
+            <AccordionPrimitive.Trigger
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-center gap-2 rounded-md py-4 text-left text-base font-medium outline-none transition-all hover:underline focus-visible:ring-[3px] [&[data-state=open]>svg]:rotate-180"
+            >
+              <ChevronDownIcon
+                class="text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200"
+              />
+              <span>
+                {getDayTitle(index, $formData.uses_numbered_days)}
+                {#if day.day_label?.trim()}
+                  <span class="text-sm text-muted-foreground">{' - '}{day.day_label}</span>
+                {/if}
+              </span>
+            </AccordionPrimitive.Trigger>
+
+            <AlertDialog.Root
+              open={deleteDialogOpen[index] ?? false}
+              onOpenChange={(open) => setDeleteDialogOpen(index, open)}
+            >
+              <AlertDialog.Trigger
+                type="button"
+                class="focus-visible:border-ring focus-visible:ring-ring/50 hover:bg-destructive/10 text-destructive inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium outline-none transition-all focus-visible:ring-[3px]"
+                aria-label={`Delete ${getDayTitle(index, $formData.uses_numbered_days)}`}
+              >
+                <Trash2Icon class="size-4" />
+                <span class="hidden sm:inline">Delete</span>
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Header>
+                  <AlertDialog.Title>Delete {getDayTitle(index, $formData.uses_numbered_days)}?</AlertDialog.Title>
+                  <AlertDialog.Description>
+                    This day will be removed when you save the workout routine.
+                  </AlertDialog.Description>
+                </AlertDialog.Header>
+                <AlertDialog.Footer>
+                  <AlertDialog.Cancel type="button">Cancel</AlertDialog.Cancel>
+                  <AlertDialog.Action
+                    type="button"
+                    variant="destructive"
+                    onclick={() => {
+                      markDayForDeletion(index);
+                    }}
+                  >
+                    Delete
+                  </AlertDialog.Action>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog.Root>
+          </AccordionPrimitive.Header>
+
           <Accordion.Content class="flex flex-col gap-4">
             <Form.Field form={workoutForm} name="workout_days[{index}].day_label">
               <Form.Control>
