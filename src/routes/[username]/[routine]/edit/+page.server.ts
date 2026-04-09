@@ -311,4 +311,66 @@ export const actions: Actions = {
       workoutForm,
     };
   },
+  delete: async ({ params, locals: { supabase, safeGetSession } }) => {
+    const { session } = await safeGetSession();
+    if (!session) {
+      redirect(303, '/login');
+    }
+
+    const { data: routineData, error: routineError } = await supabase
+      .from('workout_routines')
+      .select('id')
+      .eq('slug', params.routine)
+      .eq('user_id', session.user.id)
+      .single();
+    if (routineError || !routineData) {
+      error(404, 'Not Found');
+    }
+
+    const { data: dayIdsData, error: dayIdsError } = await supabase
+      .from('workout_days')
+      .select('id')
+      .eq('workout_routine_id', routineData.id);
+    if (dayIdsError) {
+      console.log('Fetch days for delete error:');
+      console.log(dayIdsError);
+      error(500);
+    }
+
+    const dayIds = (dayIdsData ?? []).map((day) => day.id);
+    if (dayIds.length > 0) {
+      const { error: deleteExercisesError } = await supabase
+        .from('workout_exercises')
+        .delete()
+        .in('workout_day_id', dayIds);
+      if (deleteExercisesError) {
+        console.log('Delete exercises for routine error:');
+        console.log(deleteExercisesError);
+        error(500);
+      }
+    }
+
+    const { error: deleteDaysError } = await supabase
+      .from('workout_days')
+      .delete()
+      .eq('workout_routine_id', routineData.id);
+    if (deleteDaysError) {
+      console.log('Delete days for routine error:');
+      console.log(deleteDaysError);
+      error(500);
+    }
+
+    const { error: deleteRoutineError } = await supabase
+      .from('workout_routines')
+      .delete()
+      .eq('id', routineData.id)
+      .eq('user_id', session.user.id);
+    if (deleteRoutineError) {
+      console.log('Delete routine error:');
+      console.log(deleteRoutineError);
+      error(500);
+    }
+
+    redirect(303, `/${params.username}`);
+  },
 };

@@ -8,7 +8,7 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import * as Accordion from '$lib/components/ui/accordion';
   import { Accordion as AccordionPrimitive } from 'bits-ui';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import { toast } from 'svelte-sonner';
   import {
     type SuperValidated,
@@ -25,6 +25,7 @@
   let { data }: { data: { workoutForm: SuperValidated<Infer<WorkoutFormSchema>> } } = $props();
 
   let saveError = $state(false);
+  let deleteRoutineDialogOpen = $state(false);
   let deleteDialogOpen = $state<boolean[]>([]);
   let deleteExerciseDialogOpen = $state<Record<string, boolean>>({});
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -317,6 +318,33 @@
     {/if}
     Save
   </Form.Button>
+
+  <AlertDialog.Root
+    open={deleteRoutineDialogOpen}
+    onOpenChange={(open) => {
+      deleteRoutineDialogOpen = open;
+    }}
+  >
+    <AlertDialog.Trigger type="button" class={buttonVariants({ variant: 'destructive' })}>
+      Delete Routine
+    </AlertDialog.Trigger>
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>Delete this routine?</AlertDialog.Title>
+        <AlertDialog.Description>
+          This action cannot be undone. Your routine and all of its days and exercises will be permanently deleted.
+        </AlertDialog.Description>
+      </AlertDialog.Header>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel type="button">Cancel</AlertDialog.Cancel>
+        <form method="POST" action="?/delete">
+          <AlertDialog.Action type="submit" variant="destructive">
+            Delete Routine
+          </AlertDialog.Action>
+        </form>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
 
   {#if saveError}
     <Alert.Root variant="destructive">
