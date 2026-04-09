@@ -3,6 +3,7 @@
   import { Button } from '$lib/components/ui/button';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Empty from '$lib/components/ui/empty';
+  import WorkoutCard from '$lib/components/workout-card.svelte';
   import UserIcon from '@lucide/svelte/icons/user';
 
   let { data }: PageProps = $props();
@@ -21,12 +22,26 @@
       <p class="text-lg text-muted-foreground text-center">@{data.userProfile.username}</p>
     </div>
 
-    <Empty.Root class="md:basis-1/2">
-      <Empty.Header>
-        <Empty.Title>No content</Empty.Title>
-        <Empty.Description>This user has no content</Empty.Description>
-      </Empty.Header>
-    </Empty.Root>
+    <div class="md:basis-1/2 flex flex-col gap-4">
+      <h2 class="text-xl text-center md:text-left font-semibold">
+        {data.numWorkoutRoutines} Workout {data.numWorkoutRoutines === 1 ? 'Routine' : 'Routines'}
+      </h2>
+
+      {#if data.workoutRoutines.length > 0}
+        <div class="grid grid-cols-1 gap-4">
+          {#each data.workoutRoutines as workoutRoutine}
+            <WorkoutCard {...workoutRoutine} />
+          {/each}
+        </div>
+      {:else}
+        <Empty.Root>
+          <Empty.Header>
+            <Empty.Title>No content</Empty.Title>
+            <Empty.Description>This user has no content</Empty.Description>
+          </Empty.Header>
+        </Empty.Root>
+      {/if}
+    </div>
   </div>
 
   {#if data.profile?.username === data.userProfile.username}
