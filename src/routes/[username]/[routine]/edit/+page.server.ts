@@ -305,7 +305,9 @@ export const actions: Actions = {
     //   error(500);
     // }
 
-    console.log(workoutForm.data);
+    if (workoutForm.data.slug !== event.params.routine) {
+      redirect(303, `/${event.params.username}/${encodeURIComponent(workoutForm.data.slug)}/edit`);
+    }
 
     return {
       workoutForm,
