@@ -3,74 +3,91 @@ import type { WorkoutRoutineCardProps, DayPreview } from '$lib/components/workou
 
 type Filters = {
   user_id?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export async function getPreviews(supabase: SupabaseClient, filters?: Filters): Promise<WorkoutRoutineCardProps[]> {
-  let workoutRoutinesData;
-  if (!filters?.user_id) {
-    const { data: workoutRoutinesDataToAdd } = await supabase
-      .from('workout_routines')
-      .select('id, user_id, name, slug, uses_numbered_days')
-      .limit(20);
-    workoutRoutinesData = workoutRoutinesDataToAdd;
-  } else {
-    const { data: workoutRoutinesDataToAdd } = await supabase
-      .from('workout_routines')
-      .select('id, user_id, name, slug, uses_numbered_days')
-      .eq('user_id', filters.user_id)
-      .limit(20);
-    workoutRoutinesData = workoutRoutinesDataToAdd;
+  const limit = filters?.limit ?? 20;
+  const offset = filters?.offset ?? 0;
+
+  let workoutRoutinesQuery = supabase
+    .from('workout_routines')
+    .select('id, user_id, name, slug, uses_numbered_days')
+    .order('id', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (filters?.user_id) {
+    workoutRoutinesQuery = workoutRoutinesQuery.eq('user_id', filters.user_id);
   }
+
+  const { data: workoutRoutinesData } = await workoutRoutinesQuery;
 
   if (!workoutRoutinesData) {
     return [];
   }
 
-  let workoutRoutines: WorkoutRoutineCardProps[] = [];
+  const routineIds = workoutRoutinesData.map((routine) => routine.id);
+  const userIds = [...new Set(workoutRoutinesData.map((routine) => routine.user_id))];
 
-  for (let i = 0; i < workoutRoutinesData.length; i++) {
-    const name = workoutRoutinesData[i].name;
-
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', workoutRoutinesData[i].user_id)
-      .single();
-    const href = `/${profileData?.username ?? 'unknown'}/${workoutRoutinesData[i].slug}`;
-
-    const usesNumberedDays = workoutRoutinesData[i].uses_numbered_days;
-
-    let daysPreview: DayPreview[] = [];
-    const { data: workoutDaysData } = await supabase
+  const [{ data: profilesData }, { data: workoutDaysData }] = await Promise.all([
+    supabase.from('profiles').select('id, username').in('id', userIds),
+    supabase
       .from('workout_days')
-      .select('id, day_number, day_label')
-      .eq('workout_routine_id', workoutRoutinesData[i].id)
-      .order('day_number', { ascending: true });
-    if (!workoutDaysData) {
-      continue;
-    }
-    let totalExercises = 0;
-    for (let j = 0; j < workoutDaysData.length; j++) {
-      const { data: workoutExercisesData } = await supabase
-        .from('workout_exercises')
-        .select('id')
-        .eq('workout_day_id', workoutDaysData[j].id);
-      const numExercises = workoutExercisesData ? workoutExercisesData.length : 0;
-      daysPreview.push({
-        dayLabel: workoutDaysData[j].day_label,
-        numExercises,
-      });
-      totalExercises += numExercises;
-    }
+      .select('id, workout_routine_id, day_number, day_label')
+      .in('workout_routine_id', routineIds)
+      .order('day_number', { ascending: true }),
+  ]);
 
-    workoutRoutines.push({
-      name,
-      href,
-      usesNumberedDays,
-      daysPreview,
-      totalExercises,
-    });
+  const profileById = new Map((profilesData ?? []).map((profile) => [profile.id, profile.username]));
+
+  const dayIds = (workoutDaysData ?? []).map((day) => day.id);
+  const exerciseCountByDayId = new Map<string, number>();
+
+  if (dayIds.length > 0) {
+    const { data: workoutExercisesData } = await supabase
+      .from('workout_exercises')
+      .select('workout_day_id')
+      .in('workout_day_id', dayIds);
+
+    for (const exercise of workoutExercisesData ?? []) {
+      const dayId = exercise.workout_day_id;
+      exerciseCountByDayId.set(dayId, (exerciseCountByDayId.get(dayId) ?? 0) + 1);
+    }
   }
 
-  return workoutRoutines;
+  const daysByRoutineId = new Map<string, Array<{ id: string; dayNumber: number; dayLabel?: string }>>();
+
+  for (const day of workoutDaysData ?? []) {
+    const routineDays = daysByRoutineId.get(day.workout_routine_id) ?? [];
+    routineDays.push({
+      id: day.id,
+      dayNumber: day.day_number,
+      dayLabel: day.day_label,
+    });
+    daysByRoutineId.set(day.workout_routine_id, routineDays);
+  }
+
+  return workoutRoutinesData.map((routine) => {
+    const daysWithNumber = daysByRoutineId.get(routine.id) ?? [];
+    daysWithNumber.sort((a, b) => a.dayNumber - b.dayNumber);
+
+    const daysPreview: DayPreview[] = daysWithNumber.map((day) => {
+      const numExercises = exerciseCountByDayId.get(day.id) ?? 0;
+      return {
+        dayLabel: day.dayLabel,
+        numExercises,
+      };
+    });
+
+    const totalExercises = daysPreview.reduce((sum, day) => sum + day.numExercises, 0);
+
+    return {
+      name: routine.name,
+      href: `/${profileById.get(routine.user_id) ?? 'unknown'}/${routine.slug}`,
+      usesNumberedDays: routine.uses_numbered_days,
+      daysPreview,
+      totalExercises,
+    };
+  });
 }
