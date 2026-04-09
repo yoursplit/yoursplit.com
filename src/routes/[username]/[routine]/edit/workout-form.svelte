@@ -16,13 +16,14 @@
     superForm,
   } from 'sveltekit-superforms';
   import { zod4Client } from 'sveltekit-superforms/adapters';
+  import type { PageData } from './$types';
   import { workoutFormSchema, type WorkoutFormSchema } from './workout-form-schema';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
 
-  let { data }: { data: { workoutForm: SuperValidated<Infer<WorkoutFormSchema>> } } = $props();
+  let { data }: { data: PageData & { workoutForm: SuperValidated<Infer<WorkoutFormSchema>> } } = $props();
 
   let saveError = $state(false);
   let deleteRoutineDialogOpen = $state(false);
@@ -89,6 +90,11 @@
     onUpdate: ({ form: f }) => {
       if (!f.valid) {
         toast.error('Please fix the errors in the form.');
+      }
+    },
+    onResult: ({ result }) => {
+      if (result.type === 'redirect') {
+        toast.success('Workout routine saved successfully');
       }
     },
     onUpdated: ({ form: f }) => {
