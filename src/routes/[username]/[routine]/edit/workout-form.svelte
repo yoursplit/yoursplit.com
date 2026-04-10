@@ -176,12 +176,12 @@
       $formData = $formData;
     }}>Add Day</Button>
 
-    <Accordion.Root class="border rounded-lg px-4" type="single" value="0">
+    <Accordion.Root class="border rounded-lg bg-background" type="single" value="0">
       {#each $formData.workout_days as day, index}
-        <Accordion.Item value={index.toString()}>
-          <AccordionPrimitive.Header level={3} class="flex items-center gap-2 border-b last:border-b-0">
+        <Accordion.Item value={index.toString()} class="border-b last:border-b-0">
+          <AccordionPrimitive.Header level={3} class="flex items-center gap-2 px-4 hover:bg-muted/30 transition-colors">
             <AccordionPrimitive.Trigger
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-center gap-2 rounded-md py-4 text-left text-base font-medium outline-none transition-all hover:underline focus-visible:ring-[3px] [&[data-state=open]>svg]:rotate-180"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-center gap-2 rounded-md py-4 text-left text-base font-medium outline-none transition-all focus-visible:ring-[3px] [&[data-state=open]>svg]:rotate-180 hover:no-underline"
             >
               <ChevronDownIcon
                 class="text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200"
@@ -229,7 +229,7 @@
             </AlertDialog.Root>
           </AccordionPrimitive.Header>
 
-          <Accordion.Content class="flex flex-col gap-4">
+          <Accordion.Content class="flex flex-col gap-4 px-4 pb-4 pt-2">
             <Form.Field form={workoutForm} name="workout_days[{index}].day_label">
               <Form.Control>
                 {#snippet children({ props })}

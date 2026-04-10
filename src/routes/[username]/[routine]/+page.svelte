@@ -4,6 +4,8 @@
   import * as Table from '$lib/components/ui/table';
   import { Badge } from '$lib/components/ui/badge';
   import * as Card from '$lib/components/ui/card';
+  import { toast } from 'svelte-sonner';
+  import ProfileCard from '$lib/components/profile-card.svelte';
 
   let { data }: PageProps = $props();
 
@@ -15,6 +17,14 @@
     }
 
     return weekdays[dayNumber - 1] ?? `Day ${dayNumber}`;
+  };
+
+  const shareWorkout = (e: MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copied to clipboard!');
+    }
   };
 
   const workoutDaysCount = $derived(data.workoutDaysData?.filter(d => (d.workout_exercises?.length ?? 0) > 0).length ?? 0);
@@ -35,15 +45,21 @@
   <Card.Root class="rounded-2xl">
     <Card.Content class="p-6 sm:p-8">
       <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{data.workoutRoutine.name}</h1>
-          {#if data.workoutRoutine.description}
-            <p class="text-muted-foreground mt-2 text-lg">{data.workoutRoutine.description}</p>
-          {/if}
+        <div class="flex flex-col gap-4">
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{data.workoutRoutine.name}</h1>
+            {#if data.workoutRoutine.description}
+              <p class="text-muted-foreground mt-2 text-lg">{data.workoutRoutine.description}</p>
+            {/if}
+          </div>
+          
+          <a href={`/${data.userProfile.username}`} class="block w-fit bg-muted/40 rounded-xl hover:bg-muted/80 transition-colors">
+            <ProfileCard profile={data.userProfile} class="p-3" />
+          </a>
         </div>
 
         <div class="flex items-center gap-3 self-start">
-          <Button variant="default" size="lg" class="rounded-xl font-semibold px-6" onclick={(e) => e.preventDefault()}>
+          <Button variant="default" size="lg" class="rounded-xl font-semibold px-6" onclick={shareWorkout}>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
             Share Workout
           </Button>
@@ -95,7 +111,7 @@
     <div class="space-y-6">
       {#each data.workoutDaysData as day}
         <Card.Root class="rounded-2xl overflow-hidden shadow-sm">
-          <div class="flex items-center justify-between p-6 bg-muted/30 border-b">
+          <div class="flex items-center justify-between p-6 border-b">
             <h3 class="font-bold text-xl sm:text-2xl text-foreground">
               {getDayTitle(day.day_number)}
             </h3>
@@ -106,7 +122,7 @@
                 </span>
               {/if}
               {#if !day.workout_exercises || day.workout_exercises.length === 0}
-                <span class="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold border border-border">
+                <span class="px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-semibold border">
                   Rest Day
                 </span>
               {/if}
@@ -116,7 +132,7 @@
             {#if day.workout_exercises && day.workout_exercises.length > 0}
               <div class="overflow-x-auto">
                 <Table.Root class="w-full text-sm">
-                  <Table.Header class="bg-transparent border-b">
+                  <Table.Header class="border-b">
                     <Table.Row class="hover:bg-transparent">
                       <Table.Head class="w-[60px] text-center font-bold py-4">#</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Exercise</Table.Head>

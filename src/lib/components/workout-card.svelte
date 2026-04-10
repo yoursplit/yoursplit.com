@@ -15,6 +15,7 @@
 <script lang="ts">
   import * as Card from '$lib/components/ui/card';
   import { Separator } from '$lib/components/ui/separator';
+  import { toast } from 'svelte-sonner';
 
   let { name, href, usesNumberedDays, daysPreview, totalExercises }: WorkoutRoutineCardProps = $props();
 
@@ -23,6 +24,15 @@
   
   const AVG_MIN_PER_EXERCISE = 10;
   const avgDurationPerWorkoutDay = $derived(workoutDaysCount > 0 ? Math.round((totalExercises * AVG_MIN_PER_EXERCISE) / workoutDaysCount) : 0);
+
+  const shareWorkout = (e: MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      const url = new URL(href, window.location.origin).toString();
+      navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard!');
+    }
+  };
 </script>
 
 <a {href}>
@@ -30,7 +40,7 @@
     <Card.Header class="pb-2">
       <div class="flex items-start justify-between gap-4">
         <Card.Title class="text-xl font-bold text-foreground">{name}</Card.Title>
-        <button class="flex items-center gap-1.5 px-3 py-1 bg-background border border-primary/20 text-primary text-xs font-semibold rounded-full hover:bg-primary/10 transition-colors" onclick={(e) => e.preventDefault()}>
+        <button class="flex items-center gap-1.5 px-3 py-1 bg-background border border-primary/20 text-primary text-xs font-semibold rounded-full hover:bg-primary/10 transition-colors" onclick={shareWorkout}>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
           Share
         </button>
