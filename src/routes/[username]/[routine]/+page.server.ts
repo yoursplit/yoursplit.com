@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .select(`
       id, 
       day_number, 
-      day_label, 
+      day_focus, 
       notes,
       workout_exercises (
         id,

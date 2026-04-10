@@ -169,7 +169,7 @@
 
     <Button onclick={() => {
       $formData.workout_days.push({
-        day_label: undefined,
+        day_focus: undefined,
         marked_for_deletion: false,
         workout_exercises: []
       });
@@ -188,8 +188,8 @@
               />
               <span>
                 {getDayTitle(index, $formData.uses_numbered_days)}
-                {#if day.day_label?.trim()}
-                  <span class="text-sm text-muted-foreground">{' - '}{day.day_label}</span>
+                {#if day.day_focus?.trim()}
+                  <span class="text-sm text-muted-foreground">{' - '}{day.day_focus}</span>
                 {/if}
               </span>
             </AccordionPrimitive.Trigger>
@@ -230,11 +230,11 @@
           </AccordionPrimitive.Header>
 
           <Accordion.Content class="flex flex-col gap-4 px-4 pb-4 pt-2">
-            <Form.Field form={workoutForm} name="workout_days[{index}].day_label">
+            <Form.Field form={workoutForm} name="workout_days[{index}].day_focus">
               <Form.Control>
                 {#snippet children({ props })}
                   <Form.Label>Daily Focus</Form.Label>
-                  <Input {...props} placeholder="e.g. Push, Pull, Legs" bind:value={$formData.workout_days[index].day_label} />
+                  <Input {...props} placeholder="e.g. Push, Pull, Legs" bind:value={$formData.workout_days[index].day_focus} />
                 {/snippet}
               </Form.Control>
               <Form.FieldErrors />

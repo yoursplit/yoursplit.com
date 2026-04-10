@@ -116,9 +116,9 @@
               {getDayTitle(day.day_number)}
             </h3>
             <div class="flex items-center gap-2">
-              {#if day.day_label?.trim()}
+              {#if day.day_focus?.trim()}
                 <span class="px-5 py-2 rounded-full border border-primary/30 text-primary bg-primary/10 text-sm font-semibold">
-                  {day.day_label}
+                  {day.day_focus}
                 </span>
               {/if}
               {#if !day.workout_exercises || day.workout_exercises.length === 0}

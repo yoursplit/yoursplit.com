@@ -34,7 +34,7 @@ export async function getPreviews(supabase: SupabaseClient, filters?: Filters): 
     supabase.from('profiles').select('id, username').in('id', userIds),
     supabase
       .from('workout_days')
-      .select('id, workout_routine_id, day_number, day_label')
+      .select('id, workout_routine_id, day_number, day_focus')
       .in('workout_routine_id', routineIds)
       .order('day_number', { ascending: true }),
   ]);
@@ -63,7 +63,7 @@ export async function getPreviews(supabase: SupabaseClient, filters?: Filters): 
     routineDays.push({
       id: day.id,
       dayNumber: day.day_number,
-      dayLabel: day.day_label,
+      dayLabel: day.day_focus,
     });
     daysByRoutineId.set(day.workout_routine_id, routineDays);
   }

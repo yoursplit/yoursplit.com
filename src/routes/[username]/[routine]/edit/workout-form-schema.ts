@@ -16,7 +16,7 @@ export const workoutFormSchema = z.object({
   workout_days: z.array(
     z.object({
       id: z.optional(z.int()),
-      day_label: z.optional(z.string().max(100, 'Daily focus must be at most 100 characters long')),
+      day_focus: z.optional(z.string().max(100, 'Daily focus must be at most 100 characters long')),
       notes: z.optional(z.string().max(500, 'Notes must be at most 500 characters long')),
       marked_for_deletion: z.boolean().default(false),
       workout_exercises: z.array(
