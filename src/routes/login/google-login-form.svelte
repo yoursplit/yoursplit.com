@@ -26,19 +26,21 @@
 </script>
 
 <form class="w-full flex flex-col gap-4" method="POST" action="?/google" use:enhance>
-  <Form.Button size="lg" disabled={$submitting}>
+  <Form.Button size="lg" disabled={$submitting} class="w-full h-12 text-base font-semibold shadow-md transition-all">
     {#if $submitting}
-      <Loader2Icon class="animate-spin" />
+      <Loader2Icon class="animate-spin mr-2 h-5 w-5" />
     {:else}
-      <GoogleIcon />
+      <div class="mr-3 h-5 w-5 fill-current">
+        <GoogleIcon />
+      </div>
     {/if}
     Continue with Google
   </Form.Button>
   {#if googleError}
-    <Alert.Root variant="destructive">
-      <AlertCircleIcon />
-      <Alert.Title>Something went wrong</Alert.Title>
-      <Alert.Description>Please try again later</Alert.Description>
+    <Alert.Root variant="destructive" class="mt-2 border-red-500/50 bg-red-500/10">
+      <AlertCircleIcon class="h-4 w-4 text-red-500" />
+      <Alert.Title class="text-red-500 font-medium">Authentication Failed</Alert.Title>
+      <Alert.Description class="text-red-400">Unable to sign in with Google. Please try again later.</Alert.Description>
     </Alert.Root>
   {/if}
 </form>

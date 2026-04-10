@@ -2,19 +2,44 @@
   import type { PageProps } from './$types';
   import AccountForm from './account-form.svelte';
   import SignoutForm from './signout-form.svelte';
+  import * as Card from '$lib/components/ui/card';
+  import * as Separator from '$lib/components/ui/separator';
 
   let { data }: PageProps = $props();
 </script>
 
-<div class="flex flex-col items-center gap-8 my-auto">
-  <div class="flex flex-col items-center gap-4">
-    <h1 class="text-4xl text-center font-semibold">Your Profile</h1>
-    <p class="text-center text-muted-foreground">Manage your account information</p>
-  </div>
+<div class="container max-w-2xl mx-auto py-12 px-4 sm:px-6 relative">
+  <!-- Glowing background elements -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl aspect-square bg-primary/10 rounded-full blur-[120px] opacity-70 pointer-events-none"></div>
 
-  <div class="w-full max-w-96 flex flex-col gap-8">
-    <AccountForm {data} />
+  <div class="flex flex-col items-center gap-12 relative z-10 w-full">
+    <div class="flex flex-col items-center gap-4">
+      <h1 class="text-4xl sm:text-5xl text-center font-bold tracking-tight text-foreground">
+        Account <span class="text-primary">Settings</span>
+      </h1>
+      <p class="text-lg text-center text-muted-foreground font-medium max-w-md">
+        Manage your profile information and preferences
+      </p>
+    </div>
 
-    <SignoutForm {data} />
+    <Card.Root class="w-full border-border bg-background/60 backdrop-blur-xl shadow-xl overflow-hidden">
+      <Card.Content class="p-6 sm:p-8">
+        <div class="w-full flex gap-3 flex-col mb-8">
+          <h2 class="text-xl font-semibold text-foreground tracking-tight">Profile Details</h2>
+          <AccountForm {data} />
+        </div>
+        
+        <Separator.Root class="my-8 bg-border/60" />
+        
+        <div class="w-full flex flex-col items-center text-center gap-3">
+          <h2 class="text-xl font-semibold text-destructive tracking-tight">Danger Zone</h2>
+          <p class="text-sm text-muted-foreground mb-4">Log out of your current session.</p>
+          <div class="w-40">
+            <SignoutForm {data} />
+          </div>
+        </div>
+      </Card.Content>
+    </Card.Root>
   </div>
 </div>
+
