@@ -36,7 +36,7 @@
   const avgDurationPerWorkoutDay = $derived(workoutDaysCount > 0 ? Math.round((totalExercises * AVG_MIN_PER_EXERCISE) / workoutDaysCount) : 0);
 </script>
 
-<div class="space-y-8 max-w-5xl mx-auto w-full mt-4">
+<div class="space-y-6 sm:space-y-8 max-w-5xl mx-auto w-full mt-2 sm:mt-4">
   <a href="/browse" class="flex items-center gap-2 text-primary font-medium hover:text-primary/80 transition-colors w-fit text-sm">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
     Back to Browse
@@ -47,9 +47,9 @@
       <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div class="flex flex-col gap-4">
           <div>
-            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{data.workoutRoutine.name}</h1>
+            <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-foreground wrap-break-word">{data.workoutRoutine.name}</h1>
             {#if data.workoutRoutine.description}
-              <p class="text-muted-foreground mt-2 text-lg">{data.workoutRoutine.description}</p>
+              <p class="text-muted-foreground mt-2 text-base sm:text-lg wrap-break-word">{data.workoutRoutine.description}</p>
             {/if}
           </div>
           
@@ -58,8 +58,8 @@
           </a>
         </div>
 
-        <div class="flex items-center gap-3 self-start">
-          <Button variant="default" size="lg" class="rounded-xl font-semibold px-6" onclick={shareWorkout}>
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 self-start">
+          <Button variant="default" size="lg" class="rounded-xl font-semibold px-4 sm:px-6" onclick={shareWorkout}>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
             Share Workout
           </Button>
@@ -105,17 +105,17 @@
     </Card.Content>
   </Card.Root>
 
-  <h2 class="text-2xl font-bold tracking-tight text-foreground mt-12 mb-4">Weekly Schedule</h2>
+  <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-10 sm:mt-12 mb-4">Weekly Schedule</h2>
   
   {#if data.workoutDaysData}
     <div class="space-y-6">
       {#each data.workoutDaysData as day}
         <Card.Root class="rounded-2xl overflow-hidden shadow-sm">
-          <div class="flex items-center justify-between p-6 border-b">
-            <h3 class="font-bold text-xl sm:text-2xl text-foreground">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b">
+            <h3 class="font-bold text-lg sm:text-2xl text-foreground">
               {getDayTitle(day.day_number)}
             </h3>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               {#if day.day_focus?.trim()}
                 <span class="px-5 py-2 rounded-full border border-primary/30 text-primary bg-primary/10 text-sm font-semibold">
                   {day.day_focus}
@@ -134,7 +134,7 @@
                 <Table.Root class="w-full text-sm">
                   <Table.Header class="border-b">
                     <Table.Row class="hover:bg-transparent">
-                      <Table.Head class="w-[60px] text-center font-bold py-4">#</Table.Head>
+                      <Table.Head class="w-15 text-center font-bold py-4">#</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Exercise</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Sets</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Reps</Table.Head>

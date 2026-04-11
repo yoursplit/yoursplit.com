@@ -109,9 +109,9 @@
   const { form: formData, enhance, submitting } = workoutForm;
 </script>
 
-<form class="w-full flex flex-col gap-8" method="POST" action="?/save" use:enhance>
-  <div class="flex flex-col gap-4 border rounded-lg p-4">
-    <h2 class="text-2xl font-semibold">Basic Info</h2>
+<form class="w-full flex flex-col gap-6 sm:gap-8" method="POST" action="?/save" use:enhance>
+  <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
+    <h2 class="text-xl sm:text-2xl font-semibold">Basic Info</h2>
 
     <Form.Field form={workoutForm} name="name">
       <Form.Control>
@@ -135,9 +135,9 @@
       <Form.Control>
         {#snippet children({ props })}
           <Form.Label>Slug</Form.Label>
-          <InputGroup.Root>
-            <InputGroup.Addon>/{page.data.profile?.username}/</InputGroup.Addon>
-            <InputGroup.Input {...props} bind:value={$formData.slug} placeholder="my-workout-routine" />
+          <InputGroup.Root class="h-auto min-h-9 flex-wrap sm:flex-nowrap rounded-2xl sm:rounded-4xl">
+            <InputGroup.Addon class="max-w-32 sm:max-w-none truncate text-base md:text-sm">/{page.data.profile?.username}/</InputGroup.Addon>
+            <InputGroup.Input class="min-w-0" {...props} bind:value={$formData.slug} placeholder="my-workout-routine" />
           </InputGroup.Root>
         {/snippet}
       </Form.Control>
@@ -155,10 +155,11 @@
     </Form.Field>
   </div>
 
-  <div class="flex flex-col gap-4 border rounded-lg p-4">
-    <h2 class="text-2xl font-semibold">Schedule</h2>
+  <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
+    <h2 class="text-xl sm:text-2xl font-semibold">Schedule</h2>
 
     <Button
+      class="w-full sm:w-fit"
       onclick={() => {
         $formData.uses_numbered_days = !$formData.uses_numbered_days;
         $formData = $formData;
@@ -167,7 +168,7 @@
       {$formData.uses_numbered_days ? 'Use Weekdays' : 'Use Numbers'}
     </Button>
 
-    <Button onclick={() => {
+    <Button class="w-full sm:w-fit" onclick={() => {
       $formData.workout_days.push({
         day_focus: undefined,
         marked_for_deletion: false,
@@ -179,17 +180,17 @@
     <Accordion.Root class="border rounded-lg bg-background" type="single" value="0">
       {#each $formData.workout_days as day, index}
         <Accordion.Item value={index.toString()} class="border-b last:border-b-0">
-          <AccordionPrimitive.Header level={3} class="flex items-center gap-2 px-4 hover:bg-muted/30 transition-colors">
+          <AccordionPrimitive.Header level={3} class="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 px-3 sm:px-4 hover:bg-muted/30 transition-colors">
             <AccordionPrimitive.Trigger
-              class="focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-center gap-2 rounded-md py-4 text-left text-base font-medium outline-none transition-all focus-visible:ring-[3px] [&[data-state=open]>svg]:rotate-180 hover:no-underline"
+              class="focus-visible:border-ring focus-visible:ring-ring/50 min-w-0 flex flex-1 items-center gap-2 rounded-md py-3 sm:py-4 pr-1 text-left text-sm sm:text-base font-medium outline-none transition-all focus-visible:ring-[3px] [&[data-state=open]>svg]:rotate-180 hover:no-underline"
             >
               <ChevronDownIcon
                 class="text-muted-foreground pointer-events-none size-4 shrink-0 transition-transform duration-200"
               />
-              <span>
+              <span class="min-w-0 wrap-break-word">
                 {getDayTitle(index, $formData.uses_numbered_days)}
                 {#if day.day_focus?.trim()}
-                  <span class="text-sm text-muted-foreground">{' - '}{day.day_focus}</span>
+                  <span class="text-xs sm:text-sm text-muted-foreground wrap-break-word">{' - '}{day.day_focus}</span>
                 {/if}
               </span>
             </AccordionPrimitive.Trigger>
@@ -200,7 +201,7 @@
             >
               <AlertDialog.Trigger
                 type="button"
-                class="focus-visible:border-ring focus-visible:ring-ring/50 hover:bg-destructive/10 text-destructive inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium outline-none transition-all focus-visible:ring-[3px]"
+                class="focus-visible:border-ring focus-visible:ring-ring/50 hover:bg-destructive/10 text-destructive inline-flex shrink-0 h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm font-medium outline-none transition-all focus-visible:ring-[3px]"
                 aria-label={`Delete ${getDayTitle(index, $formData.uses_numbered_days)}`}
               >
                 <Trash2Icon class="size-4" />
@@ -229,7 +230,7 @@
             </AlertDialog.Root>
           </AccordionPrimitive.Header>
 
-          <Accordion.Content class="flex flex-col gap-4 px-4 pb-4 pt-2">
+          <Accordion.Content class="flex flex-col gap-4 px-0 pb-4 pt-2">
             <Form.Field form={workoutForm} name="workout_days[{index}].day_focus">
               <Form.Control>
                 {#snippet children({ props })}
@@ -240,7 +241,7 @@
               <Form.FieldErrors />
             </Form.Field>
 
-            <Button onclick={() => {
+            <Button class="w-full sm:w-fit" onclick={() => {
               $formData.workout_days[index].workout_exercises.push({
                 name: '',
                 weight: undefined,
@@ -255,7 +256,7 @@
             {/if}
 
             {#each $formData.workout_days[index].workout_exercises as exercise, eIndex}
-              <div class="relative flex flex-col gap-4 border rounded-lg p-4">
+              <div class="relative flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
                 <AlertDialog.Root
                   open={deleteExerciseDialogOpen[getExerciseDialogKey(index, eIndex)] ?? false}
                   onOpenChange={(open) => setDeleteExerciseDialogOpen(index, eIndex, open)}
@@ -336,7 +337,7 @@
     </Accordion.Root>
   </div>
 
-  <Form.Button class="mt-4" disabled={$submitting}>
+  <Form.Button class="mt-4 w-full sm:w-fit" disabled={$submitting}>
     {#if $submitting}
       <Loader2Icon class="animate-spin" />
     {/if}
@@ -349,7 +350,7 @@
       deleteRoutineDialogOpen = open;
     }}
   >
-    <AlertDialog.Trigger type="button" class={buttonVariants({ variant: 'destructive' })}>
+    <AlertDialog.Trigger type="button" class={['w-full sm:w-fit', buttonVariants({ variant: 'destructive' })]}>
       Delete Routine
     </AlertDialog.Trigger>
     <AlertDialog.Content>

@@ -8,16 +8,16 @@
   let { data }: PageProps = $props();
 </script>
 
-<div class="container max-w-2xl mx-auto py-12 px-4 sm:px-6 relative">
+<div class="container max-w-2xl mx-auto py-8 sm:py-12 px-2 sm:px-4 md:px-6 relative">
   <!-- Glowing background elements -->
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl aspect-square bg-primary/10 rounded-full blur-[120px] opacity-70 pointer-events-none"></div>
 
   <div class="flex flex-col items-center gap-12 relative z-10 w-full">
-    <div class="flex flex-col items-center gap-4">
-      <h1 class="text-4xl sm:text-5xl text-center font-bold tracking-tight text-foreground">
+    <div class="flex flex-col items-center gap-3 sm:gap-4">
+      <h1 class="text-3xl sm:text-5xl text-center font-bold tracking-tight text-foreground">
         Account <span class="text-primary">Settings</span>
       </h1>
-      <p class="text-lg text-center text-muted-foreground font-medium max-w-md">
+      <p class="text-base sm:text-lg text-center text-muted-foreground font-medium max-w-md px-2">
         Manage your profile information and preferences
       </p>
     </div>

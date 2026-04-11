@@ -20,12 +20,12 @@
   };
 </script>
 
-<div class="flex flex-col items-center gap-16 my-8">
-  <div class="flex flex-col items-center gap-4 mb-2">
-    <h1 class="text-4xl sm:text-5xl text-center font-bold tracking-tight text-foreground mb-2">
+<div class="flex flex-col items-center gap-10 sm:gap-16 my-6 sm:my-8">
+  <div class="flex flex-col items-center gap-3 sm:gap-4 mb-2">
+    <h1 class="text-3xl sm:text-5xl text-center font-bold tracking-tight text-foreground mb-2">
       Discover Your Next <span class="text-primary">Workout</span>
     </h1>
-    <p class="text-lg text-center text-muted-foreground font-medium max-w-lg">
+    <p class="text-base sm:text-lg text-center text-muted-foreground font-medium max-w-lg px-2">
       Browse community-created workout routines and start your fitness journey today
     </p>
 
@@ -66,7 +66,7 @@
   {#if data.workoutRoutines.length === 0}
     <p class="text-lg text-muted-foreground">No routines found on this page.</p>
   {:else}
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
       {#each data.workoutRoutines as workoutRoutine}
         <WorkoutCard {...workoutRoutine} />
       {/each}

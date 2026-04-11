@@ -9,8 +9,8 @@
   let { data }: PageProps = $props();
 </script>
 
-<div class="flex flex-col gap-16 my-auto">
-  <div class="flex flex-col md:flex-row gap-16">
+<div class="flex flex-col gap-10 sm:gap-16 my-auto">
+  <div class="flex flex-col md:flex-row gap-10 sm:gap-16">
     <div class="md:basis-1/2 flex flex-col items-center gap-4">
       <Avatar.Root class="size-16">
         <Avatar.Image src={data.userProfile.avatar_url} alt="Profile picture" />
@@ -18,8 +18,8 @@
           <UserIcon />
         </Avatar.Fallback>
       </Avatar.Root>
-      <h1 class="text-2xl text-center font-semibold">{data.userProfile.full_name}</h1>
-      <p class="text-lg text-muted-foreground text-center">@{data.userProfile.username}</p>
+      <h1 class="text-xl sm:text-2xl text-center font-semibold wrap-break-word">{data.userProfile.full_name}</h1>
+      <p class="text-base sm:text-lg text-muted-foreground text-center break-all">@{data.userProfile.username}</p>
     </div>
 
     <div class="md:basis-1/2 flex flex-col gap-4">
