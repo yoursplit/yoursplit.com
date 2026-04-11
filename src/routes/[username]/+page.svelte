@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Empty from '$lib/components/ui/empty';
@@ -8,6 +9,8 @@
 
   let { data }: PageProps = $props();
 </script>
+
+<Seo title={data.userProfile.username} />
 
 <div class="flex flex-col gap-10 sm:gap-16 my-auto">
   <div class="flex flex-col md:flex-row gap-10 sm:gap-16">

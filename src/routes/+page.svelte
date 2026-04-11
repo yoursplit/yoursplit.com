@@ -1,6 +1,9 @@
 <script lang="ts">
+  import Seo from '$lib/components/seo.svelte';
   import { Button, buttonVariants } from '$lib/components/ui/button';
 </script>
+
+<Seo />
 
 <div class="relative w-full flex flex-col items-center justify-center pt-12 sm:pt-24 pb-12 sm:pb-16 text-center max-w-4xl mx-auto my-auto gap-6 sm:gap-8">
   <div class="absolute left-1/2 top-1/2 h-80 w-80 sm:h-125 sm:w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px] -z-10"></div>

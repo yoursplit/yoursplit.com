@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import AccountForm from './account-form.svelte';
   import SignoutForm from './signout-form.svelte';
   import * as Card from '$lib/components/ui/card';
@@ -7,6 +8,8 @@
 
   let { data }: PageProps = $props();
 </script>
+
+<Seo title="Account" />
 
 <div class="container max-w-2xl mx-auto py-8 sm:py-12 px-2 sm:px-4 md:px-6 relative">
   <!-- Glowing background elements -->

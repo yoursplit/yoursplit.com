@@ -1,7 +1,10 @@
 <script lang="ts">
+  import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
   import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 </script>
+
+<Seo title="Login Error" />
 
 <div class="flex flex-col items-center gap-6 sm:gap-8 my-auto w-full px-2">
   <div class="flex flex-col items-center gap-3 sm:gap-4 max-w-md">

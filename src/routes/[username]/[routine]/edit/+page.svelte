@@ -1,9 +1,12 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import WorkoutForm from './workout-form.svelte';
 
   let { data }: PageProps = $props();
 </script>
+
+<Seo title={`Edit ${data.workoutForm.data.name}`} />
 
 <div class="flex flex-col items-center gap-8 sm:gap-12 my-6 sm:my-8 w-full max-w-4xl mx-auto">
   <div class="flex flex-col items-center gap-2">

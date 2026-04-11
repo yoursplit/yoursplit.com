@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Table from '$lib/components/ui/table';
   import { Badge } from '$lib/components/ui/badge';
@@ -35,6 +36,8 @@
   const AVG_MIN_PER_EXERCISE = 10;
   const avgDurationPerWorkoutDay = $derived(workoutDaysCount > 0 ? Math.round((totalExercises * AVG_MIN_PER_EXERCISE) / workoutDaysCount) : 0);
 </script>
+
+<Seo title={data.workoutRoutine.name} />
 
 <div class="space-y-6 sm:space-y-8 max-w-5xl mx-auto w-full mt-2 sm:mt-4">
   <a href="/browse" class="flex items-center gap-2 text-primary font-medium hover:text-primary/80 transition-colors w-fit text-sm">

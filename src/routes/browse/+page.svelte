@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import WorkoutCard from '$lib/components/workout-card.svelte';
   import * as Pagination from '$lib/components/ui/pagination';
 
@@ -19,6 +20,8 @@
     });
   };
 </script>
+
+<Seo title="Browse" />
 
 <div class="flex flex-col items-center gap-10 sm:gap-16 my-6 sm:my-8">
   <div class="flex flex-col items-center gap-3 sm:gap-4 mb-2">

@@ -1,6 +1,9 @@
 <script lang="ts">
+  import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
 </script>
+
+<Seo title="New Workout Routine" />
 
 <section class="relative mx-auto my-auto flex min-h-136 w-full max-w-3xl flex-col items-center justify-center gap-8 sm:gap-10 px-4 sm:px-6 py-10 sm:py-14 text-center">
   <div class="pointer-events-none absolute inset-0 -z-10">

@@ -1,10 +1,13 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  import Seo from '$lib/components/seo.svelte';
   import GoogleLoginForm from './google-login-form.svelte';
   import * as Card from '$lib/components/ui/card';
 
   let { data }: PageProps = $props();
 </script>
+
+<Seo title="Login" />
 
 <div class="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] w-full py-8 sm:py-12 px-2 sm:px-6 lg:px-8 relative overflow-hidden">
   <!-- Decorative background elements -->
