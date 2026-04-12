@@ -104,7 +104,7 @@ export const actions: Actions = {
 
     const { data: existingRoutineData, error: existingRoutineError } = await supabase
       .from('workout_routines')
-      .select('id')
+      .select('id, slug')
       .eq('id', workoutForm.data.id)
       .eq('user_id', session.user.id)
       .single();
@@ -112,24 +112,24 @@ export const actions: Actions = {
       error(404, 'Not Found');
     }
 
-    const { error: updateRoutineError } = await supabase
-      .from('workout_routines')
-      .update({
-        updated_at: new Date(),
-        name: workoutForm.data.name,
-        slug: workoutForm.data.slug,
-        description: workoutForm.data.description,
-        uses_numbered_days: workoutForm.data.uses_numbered_days,
-      })
-      .eq('id', existingRoutineData.id)
-      .eq('user_id', session.user.id);
-    if (updateRoutineError) {
-      if (updateRoutineError.code === '23505') {
+    if (workoutForm.data.slug !== existingRoutineData.slug) {
+      const { data: conflictingRoutine, error: conflictingRoutineError } = await supabase
+        .from('workout_routines')
+        .select('id')
+        .eq('slug', workoutForm.data.slug)
+        .neq('id', existingRoutineData.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (conflictingRoutineError) {
+        console.log('Slug conflict check error:');
+        console.log(conflictingRoutineError);
+        error(500);
+      }
+
+      if (conflictingRoutine) {
         return setError(workoutForm, 'slug', 'Slug is already taken');
       }
-      console.log('Update routine error:');
-      console.log(updateRoutineError);
-      error(500);
     }
 
     const { data: existingDaysData, error: existingDaysError } = await supabase
@@ -289,6 +289,26 @@ export const actions: Actions = {
           error(500);
         }
       }
+    }
+
+    const { error: updateRoutineError } = await supabase
+      .from('workout_routines')
+      .update({
+        updated_at: new Date(),
+        name: workoutForm.data.name,
+        slug: workoutForm.data.slug,
+        description: workoutForm.data.description,
+        uses_numbered_days: workoutForm.data.uses_numbered_days,
+      })
+      .eq('id', existingRoutineData.id)
+      .eq('user_id', session.user.id);
+    if (updateRoutineError) {
+      if (updateRoutineError.code === '23505') {
+        return setError(workoutForm, 'slug', 'Slug is already taken');
+      }
+      console.log('Update routine error:');
+      console.log(updateRoutineError);
+      error(500);
     }
 
     // const { error: updateError } = await supabase.from('profiles').upsert({
