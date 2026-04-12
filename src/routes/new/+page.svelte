@@ -1,6 +1,18 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
+
+  let isCreating = $state(false);
+
+  const enhanceCreateRoutine = () => {
+    isCreating = true;
+
+    return async ({ update }: { update: () => Promise<void> }) => {
+      await update();
+      isCreating = false;
+    };
+  };
 </script>
 
 <Seo title="New Workout Routine" />
@@ -16,7 +28,43 @@
     <p class="text-muted-foreground text-base sm:text-lg mt-4 max-w-lg mx-auto px-2">Create and save a workout routine to never forget your split.</p>
   </div>
 
-  <form method="POST" action="?/create" class="flex h-32 items-center justify-center">
-    <Button type="submit" size="lg" class="rounded-xl font-bold px-6 sm:px-8 h-12 sm:h-14 text-base sm:text-lg">Create Workout Routine</Button>
+  <form method="POST" action="?/create" use:enhance={enhanceCreateRoutine} class="flex h-32 items-center justify-center">
+    <div class={isCreating ? 'create-button-shake' : ''}>
+      <Button
+        type="submit"
+        size="lg"
+        disabled={isCreating}
+        class="rounded-xl font-bold px-6 sm:px-8 h-12 sm:h-14 text-base sm:text-lg"
+      >
+        {isCreating ? 'Creating...' : 'Create Workout Routine'}
+      </Button>
+    </div>
   </form>
 </section>
+
+<style>
+  .create-button-shake {
+    animation: create-button-shake 0.45s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .create-button-shake {
+      animation: none;
+    }
+  }
+
+  @keyframes create-button-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+
+    25% {
+      transform: translateX(-2px) rotate(-1deg);
+    }
+
+    75% {
+      transform: translateX(2px) rotate(1deg);
+    }
+  }
+</style>
