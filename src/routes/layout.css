@@ -132,6 +132,9 @@
   }
   body {
     @apply bg-background text-foreground;
+
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
