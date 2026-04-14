@@ -7,7 +7,48 @@
 
   let { data }: PageProps = $props();
 
-  const browseHref = (page: number) => (page <= 1 ? '/browse' : `/browse?page=${page}`);
+  const workoutTypeOptions = [
+    { label: 'All', value: null },
+    { label: 'Strength', value: 'strength' },
+    { label: 'Cardio', value: 'cardio' },
+    { label: 'Flexibility', value: 'flexibility' },
+    { label: 'Calisthenics', value: 'calisthenics' },
+  ] as const;
+
+  const workoutDifficultyOptions = [
+    { label: 'All', value: null },
+    { label: 'Beginner', value: 'beginner' },
+    { label: 'Intermediate', value: 'intermediate' },
+    { label: 'Advanced', value: 'advanced' },
+  ] as const;
+
+  const filterButtonClass =
+    'px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all';
+  const activeFilterButtonClass =
+    'px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm shadow-sm transition-all';
+
+  const browseHref = (
+    page: number,
+    workoutType: string | null = data.workoutType,
+    workoutDifficulty: string | null = data.workoutDifficulty,
+  ) => {
+    const params = new URLSearchParams();
+
+    if (workoutType) {
+      params.set('type', workoutType);
+    }
+
+    if (workoutDifficulty) {
+      params.set('difficulty', workoutDifficulty);
+    }
+
+    if (page > 1) {
+      params.set('page', String(page));
+    }
+
+    const query = params.toString();
+    return query ? `/browse?${query}` : '/browse';
+  };
 
   const handlePageChange = async (nextPage: number) => {
     if (nextPage === data.page) {
@@ -15,6 +56,28 @@
     }
 
     await goto(browseHref(nextPage), {
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
+
+  const handleTypeFilterChange = async (nextType: string | null) => {
+    if (nextType === data.workoutType) {
+      return;
+    }
+
+    await goto(browseHref(1, nextType, data.workoutDifficulty), {
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
+
+  const handleDifficultyFilterChange = async (nextDifficulty: string | null) => {
+    if (nextDifficulty === data.workoutDifficulty) {
+      return;
+    }
+
+    await goto(browseHref(1, data.workoutType, nextDifficulty), {
       keepFocus: true,
       noScroll: true,
     });
@@ -32,36 +95,47 @@
       Browse community-created workout routines and start your fitness journey today
     </p>
 
-    <!-- TODO: maybe implement search and filters later 
-    <-!- Search -!->
-    <div class="relative w-full max-w-2xl mt-8">
-      <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-      </div>
-      <input type="text" placeholder="Search workouts..." class="w-full bg-background border border-input text-foreground placeholder:text-muted-foreground rounded-full py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm h-14 text-base" />
-    </div>
-
-    <-!- Filters -!->
-    <div class="flex flex-col sm:flex-row items-center gap-4 mt-6 w-full max-w-4xl justify-center font-medium">
-      <div class="flex items-center gap-2">
+    <div class="flex flex-col items-center gap-4 mt-6 w-full max-w-4xl justify-center font-medium">
+      <div class="flex flex-wrap items-center justify-center gap-2">
         <span class="text-muted-foreground text-sm flex items-center gap-1.5 mr-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-          Filters:
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            ><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            /></svg
+          >
+          Type:
         </span>
-        <button class="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm shadow-sm transition-all">All</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Strength</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Cardio</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Core</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Flexibility</button>
+
+        {#each workoutTypeOptions as option}
+          <button
+            type="button"
+            class={option.value === data.workoutType ? activeFilterButtonClass : filterButtonClass}
+            aria-pressed={option.value === data.workoutType}
+            onclick={() => handleTypeFilterChange(option.value)}
+          >
+            {option.label}
+          </button>
+        {/each}
       </div>
-      <div class="flex items-center gap-2">
-        <button class="px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm shadow-sm transition-all ml-2">All</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Beginner</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Intermediate</button>
-        <button class="px-5 py-2 rounded-full border border-border bg-background text-foreground hover:bg-muted text-sm transition-all">Advanced</button>
+
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <span class="text-muted-foreground text-sm mr-2">Difficulty:</span>
+
+        {#each workoutDifficultyOptions as option}
+          <button
+            type="button"
+            class={option.value === data.workoutDifficulty ? activeFilterButtonClass : filterButtonClass}
+            aria-pressed={option.value === data.workoutDifficulty}
+            onclick={() => handleDifficultyFilterChange(option.value)}
+          >
+            {option.label}
+          </button>
+        {/each}
       </div>
     </div>
-    -->
   </div>
 
   <div class="text-sm text-muted-foreground font-medium">Showing {data.totalWorkoutRoutines} workouts</div>

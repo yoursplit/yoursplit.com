@@ -3,6 +3,8 @@ import type { WorkoutRoutineCardProps, DayPreview } from '$lib/components/workou
 
 type Filters = {
   user_id?: string;
+  workout_type?: string;
+  workout_difficulty?: string;
   limit?: number;
   offset?: number;
 }
@@ -13,12 +15,20 @@ export async function getPreviews(supabase: SupabaseClient, filters?: Filters): 
 
   let workoutRoutinesQuery = supabase
     .from('workout_routines')
-    .select('id, user_id, name, slug, uses_numbered_days')
+    .select('id, user_id, name, slug, uses_numbered_days, workout_type, workout_difficulty')
     .order('id', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (filters?.user_id) {
     workoutRoutinesQuery = workoutRoutinesQuery.eq('user_id', filters.user_id);
+  }
+
+  if (filters?.workout_type) {
+    workoutRoutinesQuery = workoutRoutinesQuery.eq('workout_type', filters.workout_type);
+  }
+
+  if (filters?.workout_difficulty) {
+    workoutRoutinesQuery = workoutRoutinesQuery.eq('workout_difficulty', filters.workout_difficulty);
   }
 
   const { data: workoutRoutinesData } = await workoutRoutinesQuery;
@@ -86,6 +96,8 @@ export async function getPreviews(supabase: SupabaseClient, filters?: Filters): 
       name: routine.name,
       href: `/${profileById.get(routine.user_id) ?? 'unknown'}/${routine.slug}`,
       usesNumberedDays: routine.uses_numbered_days,
+      workoutType: routine.workout_type,
+      workoutDifficulty: routine.workout_difficulty,
       daysPreview,
       totalExercises,
     };

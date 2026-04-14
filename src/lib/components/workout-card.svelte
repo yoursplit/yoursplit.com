@@ -7,6 +7,8 @@
     name: string;
     href: string;
     usesNumberedDays: boolean;
+    workoutType: string;
+    workoutDifficulty: string;
     daysPreview: DayPreview[];
     totalExercises: number;
   };
@@ -17,7 +19,7 @@
   import { Separator } from '$lib/components/ui/separator';
   import { toast } from 'svelte-sonner';
 
-  let { name, href, usesNumberedDays, daysPreview, totalExercises }: WorkoutRoutineCardProps = $props();
+  let { name, href, usesNumberedDays, workoutType, workoutDifficulty, daysPreview, totalExercises }: WorkoutRoutineCardProps = $props();
 
   const workoutDaysCount = $derived(daysPreview.filter(d => d.numExercises > 0).length);
   const restDaysCount = $derived(daysPreview.length - workoutDaysCount);
@@ -33,13 +35,26 @@
       toast.success('Link copied to clipboard!');
     }
   };
+
+  const formatEnumLabel = (value: string) =>
+    value.length > 0 ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value;
 </script>
 
 <a {href}>
   <Card.Root class="hover:border-primary/50 transition-all card-shadow rounded-2xl overflow-hidden">
     <Card.Header class="pb-2">
       <div class="flex flex-wrap items-start justify-between gap-2 sm:gap-4">
-        <Card.Title class="text-lg sm:text-xl font-bold text-foreground wrap-break-word">{name}</Card.Title>
+        <div class="flex min-w-0 flex-col gap-2">
+          <Card.Title class="text-lg sm:text-xl font-bold text-foreground wrap-break-word">{name}</Card.Title>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 font-semibold text-primary">
+              {formatEnumLabel(workoutType)}
+            </span>
+            <span class="inline-flex items-center rounded-full bg-muted px-2.5 py-1 font-semibold text-foreground">
+              {formatEnumLabel(workoutDifficulty)}
+            </span>
+          </div>
+        </div>
         <button class="flex shrink-0 items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-background border border-primary/20 text-primary text-xs font-semibold rounded-full hover:bg-primary/10 transition-colors" onclick={shareWorkout}>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
           Share
