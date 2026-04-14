@@ -325,8 +325,17 @@
                 <Form.Field form={workoutForm} name="workout_days[{index}].workout_exercises[{eIndex}].weight">
                   <Form.Control>
                     {#snippet children({ props })}
-                      <Form.Label>Weight in lbs</Form.Label>
-                      <Input {...props} type="number" bind:value={$formData.workout_days[index].workout_exercises[eIndex].weight} />
+                      <Form.Label>Weight</Form.Label>
+                      <InputGroup.Root>
+                        <InputGroup.Input
+                          {...props}
+                          type="number"
+                          bind:value={$formData.workout_days[index].workout_exercises[eIndex].weight}
+                        />
+                        <InputGroup.Addon align="inline-end">
+                          <InputGroup.Text>lbs</InputGroup.Text>
+                        </InputGroup.Addon>
+                      </InputGroup.Root>
                     {/snippet}
                   </Form.Control>
                   <Form.FieldErrors />
