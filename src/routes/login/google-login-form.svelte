@@ -13,6 +13,7 @@
 
   let googleError = $state(false);
 
+  // svelte-ignore state_referenced_locally
   const googleLoginForm = superForm(data.googleLoginForm, {
     validators: zod4Client(googleLoginFormSchema),
     onSubmit: () => {

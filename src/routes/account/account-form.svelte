@@ -20,6 +20,7 @@
 
   let updateError = $state(false);
 
+  // svelte-ignore state_referenced_locally
   const accountForm = superForm(data.accountForm, {
     validators: zod4Client(accountFormSchema),
     resetForm: false,

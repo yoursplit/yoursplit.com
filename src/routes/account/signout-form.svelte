@@ -12,6 +12,7 @@
 
   let signoutError = $state(false);
 
+  // svelte-ignore state_referenced_locally
   const signoutForm = superForm(data.signoutForm, {
     validators: zod4Client(signoutFormSchema),
     onSubmit: () => {

@@ -81,6 +81,7 @@
     setDeleteExerciseDialogOpen(dayIndex, exerciseIndex, false);
   };
 
+  // svelte-ignore state_referenced_locally
   const workoutForm = superForm(data.workoutForm, {
     validators: zod4Client(workoutFormSchema),
     dataType: 'json',

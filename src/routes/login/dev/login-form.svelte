@@ -13,6 +13,7 @@
 
   let loginError = $state(false);
 
+  // svelte-ignore state_referenced_locally
   const loginForm = superForm(data.loginForm, {
     validators: zod4Client(loginFormSchema),
     resetForm: false,
