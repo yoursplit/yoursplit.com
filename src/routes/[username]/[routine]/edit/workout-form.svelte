@@ -23,6 +23,8 @@
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
+  import ListOrderedIcon from '@lucide/svelte/icons/list-ordered';
 
   let { data }: { data: PageData & { workoutForm: SuperValidated<Infer<WorkoutFormSchema>> } } = $props();
 
@@ -172,13 +174,20 @@
     <h2 class="text-xl sm:text-2xl font-semibold">Schedule</h2>
 
     <Button
-      class="w-full sm:w-fit"
+      type="button"
+      class="w-full sm:w-fit gap-2"
       onclick={() => {
         $formData.uses_numbered_days = !$formData.uses_numbered_days;
         $formData = $formData;
       }}
     >
-      {$formData.uses_numbered_days ? 'Use Weekdays' : 'Use Numbers'}
+      {#if $formData.uses_numbered_days}
+        <CalendarDaysIcon class="size-4" />
+        Use Weekdays
+      {:else}
+        <ListOrderedIcon class="size-4" />
+        Use Numbered Days
+      {/if}
     </Button>
 
     <Button class="w-full sm:w-fit" onclick={() => {
