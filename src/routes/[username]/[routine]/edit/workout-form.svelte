@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import * as Form from '$lib/components/ui/form';
+  import * as Select from '$lib/components/ui/select';
   import { Input } from '$lib/components/ui/input';
   import * as InputGroup from '$lib/components/ui/input-group';
   import { Textarea } from '$lib/components/ui/textarea';
@@ -33,6 +34,17 @@
   let deleteDialogOpen = $state<boolean[]>([]);
   let deleteExerciseDialogOpen = $state<Record<string, boolean>>({});
   const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const workoutTypeOptions = [
+    { value: 'strength', label: 'Strength' },
+    { value: 'cardio', label: 'Cardio' },
+    { value: 'flexibility', label: 'Flexibility' },
+    { value: 'calisthenics', label: 'Calisthenics' },
+  ] as const;
+  const workoutDifficultyOptions = [
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' },
+  ] as const;
 
   const slugify = (value: string) => value
     .normalize('NFKD')
@@ -51,6 +63,14 @@
 
     return weekdays[index % weekdays.length];
   };
+
+  const workoutTypeLabel = $derived(
+    workoutTypeOptions.find((option) => option.value === $formData.workout_type)?.label ?? 'Select workout type'
+  );
+
+  const workoutDifficultyLabel = $derived(
+    workoutDifficultyOptions.find((option) => option.value === $formData.workout_difficulty)?.label ?? 'Select difficulty'
+  );
 
   const setDeleteDialogOpen = (index: number, open: boolean) => {
     deleteDialogOpen[index] = open;
@@ -168,6 +188,46 @@
       </Form.Control>
       <Form.FieldErrors />
     </Form.Field>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <Form.Field form={workoutForm} name="workout_type">
+        <Form.Control>
+          {#snippet children()}
+            <Form.Label>Workout Type</Form.Label>
+            <Select.Root type="single" bind:value={$formData.workout_type}>
+              <Select.Trigger class="w-full">{workoutTypeLabel}</Select.Trigger>
+              <Select.Content>
+                {#each workoutTypeOptions as option (option.value)}
+                  <Select.Item value={option.value} label={option.label}>
+                    {option.label}
+                  </Select.Item>
+                {/each}
+              </Select.Content>
+            </Select.Root>
+          {/snippet}
+        </Form.Control>
+        <Form.FieldErrors />
+      </Form.Field>
+
+      <Form.Field form={workoutForm} name="workout_difficulty">
+        <Form.Control>
+          {#snippet children()}
+            <Form.Label>Difficulty</Form.Label>
+            <Select.Root type="single" bind:value={$formData.workout_difficulty}>
+              <Select.Trigger class="w-full">{workoutDifficultyLabel}</Select.Trigger>
+              <Select.Content>
+                {#each workoutDifficultyOptions as option (option.value)}
+                  <Select.Item value={option.value} label={option.label}>
+                    {option.label}
+                  </Select.Item>
+                {/each}
+              </Select.Content>
+            </Select.Root>
+          {/snippet}
+        </Form.Control>
+        <Form.FieldErrors />
+      </Form.Field>
+    </div>
   </div>
 
   <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">

@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 
   const { data: workoutRoutineData } = await supabase
     .from('workout_routines')
-    .select('id, name, slug, description, uses_numbered_days')
+    .select('id, name, slug, description, uses_numbered_days, workout_type, workout_difficulty')
     .eq('user_id', userProfile.id)
     .eq('slug', params.routine)
     .single();
@@ -64,6 +64,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     name: workoutRoutineData.name,
     slug: workoutRoutineData.slug,
     description: workoutRoutineData.description ?? undefined,
+    workout_type: workoutRoutineData.workout_type ?? 'strength',
+    workout_difficulty: workoutRoutineData.workout_difficulty ?? 'beginner',
     uses_numbered_days: workoutRoutineData.uses_numbered_days,
     deleted_day_ids: [],
     workout_days: [
@@ -298,6 +300,8 @@ export const actions: Actions = {
         name: workoutForm.data.name,
         slug: workoutForm.data.slug,
         description: workoutForm.data.description,
+        workout_type: workoutForm.data.workout_type,
+        workout_difficulty: workoutForm.data.workout_difficulty,
         uses_numbered_days: workoutForm.data.uses_numbered_days,
       })
       .eq('id', existingRoutineData.id)
