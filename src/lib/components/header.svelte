@@ -35,14 +35,14 @@
 </script>
 
 <header class="w-full flex flex-row items-center justify-between gap-4 py-4 px-2">
-  <div class="flex items-center gap-3">
+  <a class="flex items-center gap-3" href="/">
     <div class="rounded-lg flex items-center justify-center overflow-hidden">
       <img src={favicon} alt="YourSplit logo" class="h-8 w-8" />
     </div>
-    <a class="text-2xl font-bold tracking-tight text-foreground" href="/">
+    <span class="text-2xl font-bold tracking-tight text-foreground">
       YourSplit
-    </a>
-  </div>
+    </span>
+  </a>
 
   <div class="flex items-center gap-4">
     <Button variant="outline" class="hidden md:flex rounded-xl" href="/browse">
