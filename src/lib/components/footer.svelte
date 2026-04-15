@@ -12,7 +12,7 @@
     <Button variant="ghost" size="icon" href="https://github.com/yoursplit/yoursplit.com" target="_blank" rel="noopener noreferrer">
       <GitHubIcon />
     </Button>
-    <p class="text-sm text-muted-foreground">
+    <p class="text-sm max-sm:text-center text-muted-foreground">
       Created by
       <a class="font-medium underline underline-offset-4" href="https://olegpolin.com" target="_blank" rel="noopener noreferrer">
         Oleg
