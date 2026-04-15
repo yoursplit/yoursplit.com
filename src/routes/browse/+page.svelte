@@ -3,6 +3,7 @@
   import type { PageProps } from './$types';
   import Seo from '$lib/components/seo.svelte';
   import WorkoutCard from '$lib/components/workout-card.svelte';
+  import { Input } from '$lib/components/ui/input';
   import * as Pagination from '$lib/components/ui/pagination';
 
   let { data }: PageProps = $props();
@@ -33,6 +34,7 @@
     page: number,
     workoutType: string | null = data.workoutType,
     workoutDifficulty: string | null = data.workoutDifficulty,
+    workoutSearch: string | null = data.search,
   ) => {
     const params = new URLSearchParams();
 
@@ -42,6 +44,10 @@
 
     if (workoutDifficulty) {
       params.set('difficulty', workoutDifficulty);
+    }
+
+    if (workoutSearch) {
+      params.set('search', workoutSearch);
     }
 
     if (page > 1) {
@@ -68,7 +74,7 @@
       return;
     }
 
-    await goto(browseHref(1, nextType, data.workoutDifficulty), {
+    await goto(browseHref(1, nextType, data.workoutDifficulty, data.search), {
       keepFocus: true,
       noScroll: true,
     });
@@ -79,7 +85,42 @@
       return;
     }
 
-    await goto(browseHref(1, data.workoutType, nextDifficulty), {
+    await goto(browseHref(1, data.workoutType, nextDifficulty, data.search), {
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
+
+  const handleSearchSubmit = async (event: Event) => {
+    event.preventDefault();
+
+    const searchForm = event.currentTarget;
+    if (!(searchForm instanceof HTMLFormElement)) {
+      return;
+    }
+
+    const formData = new FormData(searchForm);
+    const formSearchValue = formData.get('search');
+    const formSearchText = typeof formSearchValue === 'string' ? formSearchValue : '';
+
+    const nextSearch = formSearchText.trim() || null;
+
+    if (nextSearch === data.search) {
+      return;
+    }
+
+    await goto(browseHref(1, data.workoutType, data.workoutDifficulty, nextSearch), {
+      keepFocus: true,
+      noScroll: true,
+    });
+  };
+
+  const clearSearch = async () => {
+    if (!data.search) {
+      return;
+    }
+
+    await goto(browseHref(1, data.workoutType, data.workoutDifficulty, null), {
       keepFocus: true,
       noScroll: true,
     });
@@ -96,6 +137,20 @@
     <p class="text-base sm:text-lg text-center text-muted-foreground font-medium max-w-lg px-2">
       Browse community-created workout routines and start your fitness journey today
     </p>
+
+    <form class="w-full max-w-xl mt-4 flex items-center gap-2" onsubmit={handleSearchSubmit}>
+      <Input
+        name="search"
+        type="search"
+        value={data.search ?? ''}
+        placeholder="Search routine, exercise, or creator"
+        aria-label="Search workouts"
+      />
+      <button type="submit" class={activeFilterButtonClass}>Search</button>
+      {#if data.search}
+        <button type="button" class={filterButtonClass} onclick={clearSearch}>Clear</button>
+      {/if}
+    </form>
 
     <div class="flex flex-col items-center gap-4 mt-6 w-full max-w-4xl justify-center font-medium">
       <div class="flex flex-wrap items-center justify-center gap-2">

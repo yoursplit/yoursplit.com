@@ -5,8 +5,58 @@ type Filters = {
   user_id?: string;
   workout_type?: string;
   workout_difficulty?: string;
+  routine_ids?: string[];
   limit?: number;
   offset?: number;
+}
+
+export async function getSearchMatchedRoutineIds(
+  supabase: SupabaseClient,
+  rawSearch: string,
+): Promise<string[]> {
+  const search = rawSearch.trim();
+  if (!search) {
+    return [];
+  }
+
+  const pattern = `%${search}%`;
+  const matchedRoutineIds = new Set<string>();
+
+  const [{ data: routinesByName }, { data: profileMatches }, { data: exerciseMatches }] = await Promise.all([
+    supabase.from('workout_routines').select('id').ilike('name', pattern),
+    supabase.from('profiles').select('id').or(`username.ilike.${pattern},full_name.ilike.${pattern}`),
+    supabase.from('workout_exercises').select('workout_day_id').ilike('name', pattern),
+  ]);
+
+  for (const routine of routinesByName ?? []) {
+    matchedRoutineIds.add(routine.id);
+  }
+
+  const profileIds = (profileMatches ?? []).map((profile) => profile.id);
+  if (profileIds.length > 0) {
+    const { data: routinesByProfiles } = await supabase
+      .from('workout_routines')
+      .select('id')
+      .in('user_id', profileIds);
+
+    for (const routine of routinesByProfiles ?? []) {
+      matchedRoutineIds.add(routine.id);
+    }
+  }
+
+  const dayIds = [...new Set((exerciseMatches ?? []).map((exercise) => exercise.workout_day_id))];
+  if (dayIds.length > 0) {
+    const { data: daysData } = await supabase
+      .from('workout_days')
+      .select('workout_routine_id')
+      .in('id', dayIds);
+
+    for (const day of daysData ?? []) {
+      matchedRoutineIds.add(day.workout_routine_id);
+    }
+  }
+
+  return [...matchedRoutineIds];
 }
 
 export async function getPreviews(supabase: SupabaseClient, filters?: Filters): Promise<WorkoutRoutineCardProps[]> {
@@ -29,6 +79,10 @@ export async function getPreviews(supabase: SupabaseClient, filters?: Filters): 
 
   if (filters?.workout_difficulty) {
     workoutRoutinesQuery = workoutRoutinesQuery.eq('workout_difficulty', filters.workout_difficulty);
+  }
+
+  if (filters?.routine_ids) {
+    workoutRoutinesQuery = workoutRoutinesQuery.in('id', filters.routine_ids);
   }
 
   const { data: workoutRoutinesData } = await workoutRoutinesQuery;
