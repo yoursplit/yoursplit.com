@@ -8,18 +8,15 @@
 
 <footer class="w-full flex flex-row items-center justify-between gap-8 p-8">
   <p class="text-sm text-muted-foreground">
-    Made with
-    <a class="font-medium underline underline-offset-4" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
-      SvelteKit
+    Created by
+    <a class="font-medium underline underline-offset-4" href="https://olegpolin.com" target="_blank" rel="noopener noreferrer">
+      Oleg
     </a>,
-    <a class="font-medium underline underline-offset-4" href="https://supabase.com" target="_blank" rel="noopener noreferrer">
-      Supabase
-    </a>,
-    <a class="font-medium underline underline-offset-4" href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer">
-      Tailwind
+    <a class="font-medium underline underline-offset-4" href="https://github.com/bodenharris" target="_blank" rel="noopener noreferrer">
+      Boden
     </a> &amp;
-    <a class="font-medium underline underline-offset-4" href="https://shadcn-svelte.com" target="_blank" rel="noopener noreferrer">
-      shadcn-svelte
+    <a class="font-medium underline underline-offset-4" href="https://github.com/lukesantos34" target="_blank" rel="noopener noreferrer">
+      Luke
     </a>.
   </p>
   <DropdownMenu.Root>
