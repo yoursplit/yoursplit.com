@@ -28,6 +28,14 @@
     }
   };
 
+  const formatEnumLabel = (value: string | null | undefined) => {
+    if (!value) {
+      return 'Not set';
+    }
+
+    return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+  };
+
   const workoutDaysCount = $derived(data.workoutDaysData?.filter(d => (d.workout_exercises?.length ?? 0) > 0).length ?? 0);
   const restDaysCount = $derived((data.workoutDaysData?.length ?? 0) - workoutDaysCount);
   const totalExercises = $derived(data.workoutDaysData?.reduce((acc, current) => acc + (current.workout_exercises?.length ?? 0), 0) ?? 0);
@@ -54,6 +62,14 @@
             {#if data.workoutRoutine.description}
               <p class="text-muted-foreground mt-2 text-base sm:text-lg wrap-break-word">{data.workoutRoutine.description}</p>
             {/if}
+            <div class="mt-4 flex flex-wrap gap-3">
+              <Badge variant="default" class="h-8 rounded-full px-4 text-sm font-semibold">
+                {formatEnumLabel(data.workoutRoutine.workout_type)}
+              </Badge>
+              <Badge variant="secondary" class="h-8 rounded-full px-4 text-sm font-semibold">
+                {formatEnumLabel(data.workoutRoutine.workout_difficulty)}
+              </Badge>
+            </div>
           </div>
           
           <a href={`/${data.userProfile.username}`} class="block w-fit bg-muted/40 rounded-xl hover:bg-muted/80 transition-colors">
