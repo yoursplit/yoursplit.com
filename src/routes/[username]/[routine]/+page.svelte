@@ -40,9 +40,9 @@
   const workoutDaysCount = $derived(data.workoutDaysData?.filter(d => (d.workout_exercises?.length ?? 0) > 0).length ?? 0);
   const restDaysCount = $derived((data.workoutDaysData?.length ?? 0) - workoutDaysCount);
   const totalExercises = $derived(data.workoutDaysData?.reduce((acc, current) => acc + (current.workout_exercises?.length ?? 0), 0) ?? 0);
-  
-  // Assuming roughly 10 minutes per exercise for average duration calculation
-  const AVG_MIN_PER_EXERCISE = 10;
+
+  // Assuming roughly 12 minutes per exercise for average duration calculation
+  const AVG_MIN_PER_EXERCISE = 12;
   const avgDurationPerWorkoutDay = $derived(workoutDaysCount > 0 ? Math.round((totalExercises * AVG_MIN_PER_EXERCISE) / workoutDaysCount) : 0);
 </script>
 
