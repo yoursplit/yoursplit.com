@@ -1,13 +1,28 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import type { PageProps } from './$types';
   import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
+  import { Spinner } from '$lib/components/ui/spinner';
   import * as Avatar from '$lib/components/ui/avatar';
   import * as Empty from '$lib/components/ui/empty';
   import WorkoutCard from '$lib/components/workout-card.svelte';
   import UserIcon from '@lucide/svelte/icons/user';
 
   let { data }: PageProps = $props();
+  let isFollowPending = $state(false);
+
+  const enhanceFollow = () => {
+    isFollowPending = true;
+
+    return async ({ update }: { update: () => Promise<void> }) => {
+      try {
+        await update();
+      } finally {
+        isFollowPending = false;
+      }
+    };
+  };
 </script>
 
 <Seo title={data.userProfile.username} />
@@ -23,6 +38,36 @@
       </Avatar.Root>
       <h1 class="text-xl sm:text-2xl text-center font-semibold wrap-break-word">{data.userProfile.full_name}</h1>
       <p class="text-base sm:text-lg text-muted-foreground text-center break-all">@{data.userProfile.username}</p>
+
+      <div class="flex items-center gap-6 text-sm sm:text-base">
+        <div class="text-center">
+          <p class="font-semibold">{data.numFollowers}</p>
+          <p class="text-muted-foreground">Followers</p>
+        </div>
+        <div class="text-center">
+          <p class="font-semibold">{data.numFollowing}</p>
+          <p class="text-muted-foreground">Following</p>
+        </div>
+      </div>
+
+      {#if !data.isOwnProfile}
+        {#if data.isLoggedIn}
+          <form method="POST" action={data.isFollowing ? '?/unfollow' : '?/follow'} use:enhance={enhanceFollow}>
+            <Button type="submit" variant={data.isFollowing ? 'outline' : 'default'} disabled={isFollowPending}>
+              {#if isFollowPending}
+                <Spinner />
+                {data.isFollowing ? 'Unfollowing...' : 'Following...'}
+              {:else}
+                {data.isFollowing ? 'Unfollow' : 'Follow'}
+              {/if}
+            </Button>
+          </form>
+        {:else}
+          <Button href="/login" variant="outline">
+            Log in to follow
+          </Button>
+        {/if}
+      {/if}
     </div>
 
     <div class="md:basis-1/2 flex flex-col gap-4">
@@ -47,7 +92,7 @@
     </div>
   </div>
 
-  {#if data.profile?.username === data.userProfile.username}
+  {#if data.isOwnProfile}
     <div class="flex justify-center">
       <Button href="/account">
         Edit profile
