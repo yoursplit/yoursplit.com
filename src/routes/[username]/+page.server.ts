@@ -2,6 +2,43 @@ import type { Actions, PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 import { getPreviews } from '$lib/server/workout-routines';
 
+type ProfileListItem = {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+};
+
+async function getFollowListByIds(
+  supabase: App.Locals['supabase'],
+  ids: string[],
+): Promise<ProfileListItem[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, username, full_name, avatar_url')
+    .in('id', ids);
+
+  const profilesById = new Map<string, ProfileListItem>();
+  for (const profile of profiles ?? []) {
+    if (profile.username) {
+      profilesById.set(profile.id, {
+        id: profile.id,
+        username: profile.username,
+        full_name: profile.full_name,
+        avatar_url: profile.avatar_url,
+      });
+    }
+  }
+
+  return ids
+    .map((id) => profilesById.get(id))
+    .filter((profile): profile is NonNullable<typeof profile> => Boolean(profile));
+}
+
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { session } = await safeGetSession();
 
@@ -123,5 +160,53 @@ export const actions: Actions = {
     if (deleteFollowError) {
       error(500, 'Unable to unfollow this account');
     }
+  },
+
+  followers: async ({ params, locals: { supabase } }) => {
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', params.username)
+      .single();
+
+    if (!userProfile) {
+      error(404, 'Not Found');
+    }
+
+    const { data: followerRows } = await supabase
+      .from('follows')
+      .select('follower_id')
+      .eq('following_id', userProfile.id)
+      .order('created_at', { ascending: false });
+
+    const followerIds = (followerRows ?? []).map((row) => row.follower_id);
+
+    return {
+      followers: await getFollowListByIds(supabase, followerIds),
+    };
+  },
+
+  following: async ({ params, locals: { supabase } }) => {
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', params.username)
+      .single();
+
+    if (!userProfile) {
+      error(404, 'Not Found');
+    }
+
+    const { data: followingRows } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', userProfile.id)
+      .order('created_at', { ascending: false });
+
+    const followingIds = (followingRows ?? []).map((row) => row.following_id);
+
+    return {
+      following: await getFollowListByIds(supabase, followingIds),
+    };
   },
 };
