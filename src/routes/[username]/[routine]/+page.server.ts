@@ -1,5 +1,24 @@
 import type { Actions, PageServerLoad } from './$types';
-import { error } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
+import Groq from 'groq-sdk';
+import { GROQ_API_KEY } from '$env/static/private';
+
+const YOUTUBE_URL_PATTERN = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=[\w-]{11}(?:[^\s"]*)?|youtu\.be\/[\w-]{11}(?:[^\s"]*)?)/i;
+
+const extractYoutubeUrl = (text: string): string | null => {
+  const match = text.match(YOUTUBE_URL_PATTERN);
+  return match ? match[0] : null;
+};
+
+const isYoutubeUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    return hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'youtu.be';
+  } catch {
+    return false;
+  }
+};
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { session } = await safeGetSession();
@@ -71,6 +90,90 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 };
 
 export const actions: Actions = {
+  searchDemoVideo: async ({ request, locals: { supabase } }) => {
+    const formData = await request.formData();
+    const exerciseNameRaw = formData.get('exerciseName');
+    const exerciseName = typeof exerciseNameRaw === 'string' ? exerciseNameRaw.trim() : '';
+    const normalizedExerciseName = exerciseName.toLowerCase();
+
+    if (!exerciseName) {
+      return fail(400, {
+        exerciseName,
+        videoUrl: null,
+        error: 'Exercise name is required.',
+      });
+    }
+
+    const { data: cachedVideo } = await supabase
+      .from('workout_exercise_videos')
+      .select('video_url')
+      .eq('exercise_name', normalizedExerciseName)
+      .maybeSingle();
+
+    if (cachedVideo?.video_url && isYoutubeUrl(cachedVideo.video_url)) {
+      return {
+        exerciseName,
+        videoUrl: cachedVideo.video_url,
+        error: null,
+      };
+    }
+
+    try {
+      const groq = new Groq({ apiKey: GROQ_API_KEY });
+      const completion = await groq.chat.completions.create({
+        model: 'groq/compound-mini',
+        messages: [
+          {
+            role: 'user',
+            content:
+              `Find a YouTube exercise demonstration video for: ${exerciseName}. ` +
+              'Return ONLY one line with either: (1) a full youtube.com or youtu.be URL for a valid exercise, or (2) ERROR if the input is not an exercise or no suitable video is found.',
+          },
+        ],
+      });
+
+      const rawContent = (completion.choices[0]?.message?.content ?? '').trim();
+      const extractedVideoUrl = extractYoutubeUrl(rawContent);
+
+      if (!extractedVideoUrl || !isYoutubeUrl(extractedVideoUrl)) {
+        return fail(404, {
+          exerciseName,
+          videoUrl: null,
+          error: 'video_not_found',
+        });
+      }
+
+      const { error: insertVideoError } = await supabase
+        .from('workout_exercise_videos')
+        .upsert(
+          {
+            exercise_name: normalizedExerciseName,
+            video_url: extractedVideoUrl,
+          },
+          { onConflict: 'exercise_name' },
+        );
+
+      if (insertVideoError) {
+        console.error('Failed to cache workout exercise video URL', {
+          exerciseName: normalizedExerciseName,
+          error: insertVideoError.message,
+        });
+      }
+
+      return {
+        exerciseName,
+        videoUrl: extractedVideoUrl,
+        error: null,
+      };
+    } catch {
+      return fail(500, {
+        exerciseName,
+        videoUrl: null,
+        error: 'Could not search for a demo video right now. Please try again.',
+      });
+    }
+  },
+
   favorite: async ({ params, locals: { supabase, safeGetSession } }) => {
     const { session } = await safeGetSession();
     if (!session) {

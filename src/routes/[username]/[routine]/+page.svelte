@@ -1,9 +1,11 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import type { SubmitFunction } from '@sveltejs/kit';
   import type { PageProps } from './$types';
   import Seo from '$lib/components/seo.svelte';
   import { Button } from '$lib/components/ui/button';
   import { Spinner } from '$lib/components/ui/spinner';
+  import * as Dialog from '$lib/components/ui/dialog';
   import * as Table from '$lib/components/ui/table';
   import { Badge } from '$lib/components/ui/badge';
   import * as Card from '$lib/components/ui/card';
@@ -12,8 +14,20 @@
   import { WEEKDAYS } from '$lib/constants';
   import HeartIcon from '@lucide/svelte/icons/heart';
 
-  let { data }: PageProps = $props();
+  type DemoSearchActionResult = {
+    exerciseName?: string;
+    videoUrl?: string | null;
+    error?: string | null;
+  };
+
+  let { data, form }: PageProps = $props();
   let isFavoritePending = $state(false);
+  let isDemoSearchPending = $state(false);
+  let exerciseDemoDialogOpen = $state(false);
+  let selectedExerciseName = $state<string | null>(null);
+  let demoSearchForm: HTMLFormElement | null = $state(null);
+  let demoSearchOpenNonce = $state(0);
+  let lastAutoSearchOpenNonce = $state(-1);
 
   const weekdays = WEEKDAYS;
 
@@ -59,6 +73,50 @@
         isFavoritePending = false;
       }
     };
+  };
+
+  const enhanceDemoSearch: SubmitFunction = () => {
+    isDemoSearchPending = true;
+
+    return async ({ update }) => {
+      try {
+        await update();
+      } finally {
+        isDemoSearchPending = false;
+      }
+    };
+  };
+
+  const openExerciseDemoDialog = (exerciseName: string) => {
+    selectedExerciseName = exerciseName;
+    demoSearchOpenNonce += 1;
+    exerciseDemoDialogOpen = true;
+  };
+
+  $effect(() => {
+    if (!data.isLoggedIn || !exerciseDemoDialogOpen || !selectedExerciseName || !demoSearchForm) {
+      return;
+    }
+
+    if (demoSearchOpenNonce === lastAutoSearchOpenNonce) {
+      return;
+    }
+
+    lastAutoSearchOpenNonce = demoSearchOpenNonce;
+    demoSearchForm.requestSubmit();
+  });
+
+  const getCurrentDemoResult = (): DemoSearchActionResult | null => {
+    if (!selectedExerciseName || !form || typeof form !== 'object') {
+      return null;
+    }
+
+    const candidate = form as DemoSearchActionResult;
+    if (candidate.exerciseName !== selectedExerciseName) {
+      return null;
+    }
+
+    return candidate;
   };
 
   const scrollToDay = (dayNumber: number) => {
@@ -223,6 +281,7 @@
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Reps</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Weight</Table.Head>
                       <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Notes</Table.Head>
+                      <Table.Head class="font-bold py-4 uppercase text-xs tracking-wide">Demo</Table.Head>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
@@ -234,6 +293,17 @@
                         <Table.Cell class="font-bold text-blue-500 py-4">{exercise.reps || '—'}</Table.Cell>
                         <Table.Cell class="font-bold text-foreground py-4">{exercise.weight ? `${exercise.weight} ${data.workoutRoutine.weight_unit || 'lbs'}` : '—'}</Table.Cell>
                         <Table.Cell class="text-muted-foreground py-4">{exercise.notes || '—'}</Table.Cell>
+                        <Table.Cell class="py-4">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            class="rounded-xl"
+                            onclick={() => openExerciseDemoDialog(exercise.name)}
+                          >
+                            Watch Demo
+                          </Button>
+                        </Table.Cell>
                       </Table.Row>
                     {/each}
                   </Table.Body>
@@ -250,3 +320,57 @@
     </div>
   {/if}
 </div>
+
+<Dialog.Root bind:open={exerciseDemoDialogOpen}>
+  <Dialog.Content class="sm:max-w-xl">
+    <Dialog.Header>
+      <Dialog.Title>Exercise Video Demo</Dialog.Title>
+      <Dialog.Description>
+        Find a YouTube demonstration for {selectedExerciseName ?? 'the selected exercise'}.
+      </Dialog.Description>
+    </Dialog.Header>
+
+    {#if selectedExerciseName}
+      {@const demoResult = getCurrentDemoResult()}
+      {@const hasDemoError = Boolean(demoResult?.error)}
+
+      {#if !data.isLoggedIn}
+        <div class="mt-3 flex justify-center">
+          <Button variant="default" class="rounded-xl" disabled>
+            You Must Log In
+          </Button>
+        </div>
+      {:else if demoResult?.videoUrl}
+        <div class="mt-3 flex justify-center">
+          <Button
+            href={demoResult.videoUrl}
+            variant="default"
+            class="rounded-xl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open Demo Video
+          </Button>
+        </div>
+      {:else if hasDemoError}
+        <div class="mt-3 flex justify-center">
+          <Button variant="default" class="rounded-xl" disabled>
+            Video Not Found
+          </Button>
+        </div>
+      {:else}
+        <form bind:this={demoSearchForm} method="POST" action="?/searchDemoVideo" use:enhance={enhanceDemoSearch} class="mt-3 flex justify-center">
+          <input type="hidden" name="exerciseName" value={selectedExerciseName} />
+          <Button type="submit" variant="default" class="rounded-xl" disabled={isDemoSearchPending}>
+            {#if isDemoSearchPending}
+              <Spinner />
+              Searching...
+            {:else}
+              Search for Demo Video
+            {/if}
+          </Button>
+        </form>
+      {/if}
+    {/if}
+  </Dialog.Content>
+</Dialog.Root>
