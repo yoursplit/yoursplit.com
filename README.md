@@ -60,6 +60,18 @@ You can view your app at [http://localhost:5173](http://localhost:5173)
 
 To sign in in the development environment, create a user in the local Supabase dashboard and go to [http://localhost:5173/login/dev](http://localhost:5173/login/dev)
 
+To stop the Supabase development environment, run:
+
+```sh
+npx supabase stop
+```
+
+To stop the Supabase development environment and remove all data, run:
+
+```sh
+npx supabase stop --no-backup
+```
+
 ## Building
 
 To create a production version of your app:
