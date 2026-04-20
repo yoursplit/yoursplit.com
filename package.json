@@ -25,6 +25,7 @@
     "formsnap": "^2.0.1",
     "mode-watcher": "^1.1.0",
     "shadcn-svelte": "^1.2.7",
+    "supabase": "^2.93.0",
     "svelte": "^5.55.2",
     "svelte-check": "^4.4.6",
     "svelte-sonner": "^1.1.0",
