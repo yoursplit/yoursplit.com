@@ -24,6 +24,24 @@ INSERT INTO auth.users (
     now()
 );
 
+INSERT INTO auth.identities (
+    id,
+    user_id,
+    provider_id,
+    identity_data,
+    provider,
+    created_at,
+    updated_at
+) VALUES (
+    gen_random_uuid(),
+    '00000000-0000-4000-8000-000000000000',
+    '00000000-0000-4000-8000-000000000000',
+    jsonb_build_object('sub', '00000000-0000-4000-8000-000000000000', 'email', 'user@example.com'),
+    'email',
+    now(),
+    now()
+);
+
 UPDATE public.profiles
 SET username = 'user'
 WHERE id = '00000000-0000-4000-8000-000000000000';
