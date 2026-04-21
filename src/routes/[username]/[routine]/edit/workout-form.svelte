@@ -23,6 +23,8 @@
   import ChatSidebar from './chat-sidebar.svelte';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+  import CheckCircle2Icon from '@lucide/svelte/icons/check-circle-2';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import XIcon from '@lucide/svelte/icons/x';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
@@ -118,17 +120,40 @@
     onUpdated: ({ form: f }) => {
       if (f.valid) {
         toast.success('Workout routine saved successfully');
+        workoutForm.tainted.set(undefined);
       }
     },
     onError: () => {
       saveError = true;
     }
   });
-  const { form: formData, enhance, submitting } = workoutForm;
+  const { form: formData, enhance, submitting, tainted } = workoutForm;
 </script>
 
-<div class="flex flex-col lg:flex-row gap-8 w-full">
-  <form class="flex-1 w-full flex flex-col gap-6 sm:gap-8" method="POST" action="?/save" use:enhance>
+<div class="w-full flex flex-col gap-8">
+<div class="sticky top-0 z-20 lg:hidden w-full bg-background pt-4 pb-3 flex flex-col gap-3">
+  {#if $tainted}
+    <Alert.Root class="border-yellow-500/50 text-yellow-600 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400">
+      <TriangleAlertIcon />
+      <Alert.Title>Unsaved changes</Alert.Title>
+      <Alert.Description>You have unsaved changes.</Alert.Description>
+    </Alert.Root>
+  {:else}
+    <Alert.Root>
+      <CheckCircle2Icon />
+      <Alert.Title>No unsaved changes</Alert.Title>
+    </Alert.Root>
+  {/if}
+  <Button type="submit" form="workout-form" class="w-full" disabled={$submitting || !$tainted}>
+    {#if $submitting}
+      <Loader2Icon class="animate-spin" />
+    {/if}
+    Save
+  </Button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-8 w-full">
+  <form id="workout-form" class="order-2 lg:order-1 w-full flex flex-col gap-6 sm:gap-8" method="POST" action="?/save" use:enhance>
     <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
       <h2 class="text-xl sm:text-2xl font-semibold">Basic Info</h2>
 
@@ -439,52 +464,68 @@
     </Accordion.Root>
   </div>
 
-  <Form.Button class="mt-4 w-full sm:w-fit" disabled={$submitting}>
-    {#if $submitting}
-      <Loader2Icon class="animate-spin" />
-    {/if}
-    Save
-  </Form.Button>
-
-  <AlertDialog.Root
-    open={deleteRoutineDialogOpen}
-    onOpenChange={(open) => {
-      deleteRoutineDialogOpen = open;
-    }}
-  >
-    <AlertDialog.Trigger type="button" class={['w-full sm:w-fit', buttonVariants({ variant: 'destructive' })]}>
-      Delete Routine
-    </AlertDialog.Trigger>
-    <AlertDialog.Content>
-      <AlertDialog.Header>
-        <AlertDialog.Title>Delete this routine?</AlertDialog.Title>
-        <AlertDialog.Description>
-          This action cannot be undone. Your routine and all of its days and exercises will be permanently deleted.
-        </AlertDialog.Description>
-      </AlertDialog.Header>
-      <AlertDialog.Footer>
-        <AlertDialog.Cancel type="button">Cancel</AlertDialog.Cancel>
-        <form method="POST" action="?/delete">
-          <AlertDialog.Action type="submit" variant="destructive">
-            Delete Routine
-          </AlertDialog.Action>
-        </form>
-      </AlertDialog.Footer>
-    </AlertDialog.Content>
-  </AlertDialog.Root>
-
-  {#if saveError}
-    <Alert.Root variant="destructive">
-      <AlertCircleIcon />
-      <Alert.Title>Something went wrong</Alert.Title>
-      <Alert.Description>
-        We encountered an issue while saving your workout routine. Please try again later.
-      </Alert.Description>
-    </Alert.Root>
-  {/if}
   </form>
 
-  <aside class="w-full lg:w-96 shrink-0 lg:sticky lg:top-8 h-[600px] lg:h-[calc(100vh-8rem)]">
+  <aside class="order-1 lg:order-2 w-full lg:sticky lg:top-8 lg:self-start flex flex-col gap-3">
+    <div class="hidden lg:flex flex-col gap-3">
+      {#if $tainted}
+        <Alert.Root class="border-yellow-500/50 text-yellow-600 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400">
+          <TriangleAlertIcon />
+          <Alert.Title>Unsaved changes</Alert.Title>
+          <Alert.Description>You have unsaved changes.</Alert.Description>
+        </Alert.Root>
+      {:else}
+        <Alert.Root>
+          <CheckCircle2Icon />
+          <Alert.Title>No unsaved changes</Alert.Title>
+        </Alert.Root>
+      {/if}
+      <Button type="submit" form="workout-form" class="w-full" disabled={$submitting || !$tainted}>
+        {#if $submitting}
+          <Loader2Icon class="animate-spin" />
+        {/if}
+        Save
+      </Button>
+    </div>
     <ChatSidebar form={workoutForm} />
   </aside>
-</div>
+
+  <div class="order-3 flex flex-col gap-4">
+    <AlertDialog.Root
+      open={deleteRoutineDialogOpen}
+      onOpenChange={(open) => {
+        deleteRoutineDialogOpen = open;
+      }}
+    >
+      <AlertDialog.Trigger type="button" class={['w-full sm:w-fit', buttonVariants({ variant: 'destructive' })]}>
+        Delete Routine
+      </AlertDialog.Trigger>
+      <AlertDialog.Content>
+        <AlertDialog.Header>
+          <AlertDialog.Title>Delete this routine?</AlertDialog.Title>
+          <AlertDialog.Description>
+            This action cannot be undone. Your routine and all of its days and exercises will be permanently deleted.
+          </AlertDialog.Description>
+        </AlertDialog.Header>
+        <AlertDialog.Footer>
+          <AlertDialog.Cancel type="button">Cancel</AlertDialog.Cancel>
+          <form method="POST" action="?/delete">
+            <AlertDialog.Action type="submit" variant="destructive">
+              Delete Routine
+            </AlertDialog.Action>
+          </form>
+        </AlertDialog.Footer>
+      </AlertDialog.Content>
+    </AlertDialog.Root>
+
+    {#if saveError}
+      <Alert.Root variant="destructive">
+        <AlertCircleIcon />
+        <Alert.Title>Something went wrong</Alert.Title>
+        <Alert.Description>
+          We encountered an issue while saving your workout routine. Please try again later.
+        </Alert.Description>
+      </Alert.Root>
+    {/if}
+  </div>
+</div></div>

@@ -2,15 +2,18 @@
   import Bot from '@lucide/svelte/icons/bot';
   import Send from '@lucide/svelte/icons/send';
   import User from '@lucide/svelte/icons/user';
+  import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { ScrollArea } from '$lib/components/ui/scroll-area';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
-  
+
   let { form }: { form: any } = $props();
-  
+
   // svelte-ignore state_referenced_locally
-    let formData = form.form;
+  let formData = form.form;
+
+  let open = $state(true);
 
   let messages: { role: 'user' | 'assistant', content: string }[] = $state([
     { role: 'assistant', content: 'Hi! I am an obligatory AI assistant that every web app is adding. Tell me your goals, how many days a week you want to exercise, and I will generate or optimize this workout routine for you!' }
@@ -66,14 +69,20 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-card border rounded-xl shadow-sm overflow-hidden">
+<div class="flex flex-col bg-card border rounded-xl shadow-sm overflow-hidden {open ? 'h-135 lg:h-[calc(100vh-10rem)]' : ''}">
   <div class="p-4 border-b bg-muted/30">
-    <div class="flex items-center gap-2 font-semibold">
-      <Bot class="w-5 h-5 text-primary" />
-      AI Assistant
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2 font-semibold">
+        <Bot class="w-5 h-5 text-primary" />
+        AI Assistant
+      </div>
+      <Button variant="ghost" size="icon" class="h-7 w-7" onclick={() => open = !open}>
+        <ChevronDownIcon class="w-4 h-4 transition-transform duration-200 {open ? '' : '-rotate-90'}" />
+      </Button>
     </div>
   </div>
 
+  {#if open}
   <ScrollArea class="flex-1 min-h-0 px-4">
     <div class="flex flex-col gap-4 py-4">
       {#each messages as msg}
@@ -118,4 +127,5 @@
       </Button>
     </form>
   </div>
+  {/if}
 </div>
