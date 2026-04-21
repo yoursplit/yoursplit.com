@@ -106,7 +106,6 @@
       saveError = false;
     },
     onUpdate: ({ form: f }) => {
-      console.log(f.data);
       if (!f.valid) {
         toast.error('Please fix the errors in the form.');
       }
