@@ -6,7 +6,7 @@
   import User from '@lucide/svelte/icons/user';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import { Button } from '$lib/components/ui/button';
-  import { Input } from '$lib/components/ui/input';
+  import { Textarea } from '$lib/components/ui/textarea';
   import { ScrollArea } from '$lib/components/ui/scroll-area';
   import Spinner from '$lib/components/ui/spinner/spinner.svelte';
 
@@ -136,12 +136,12 @@
 
   <div class="p-3 border-t bg-muted/10">
     <form onsubmit={(e) => { e.preventDefault(); sendMessage(); }} class="flex gap-2">
-      <Input
+      <Textarea
         bind:value={inputMessage}
         placeholder="Type a message..."
         onkeydown={handleKeyDown}
         disabled={isLoading}
-        class="flex-1"
+        class="flex-1 min-h-10 max-h-28 resize-y"
       />
       <Button type="submit" size="icon" disabled={isLoading || !inputMessage.trim()}>
         <Send class="w-4 h-4" />
