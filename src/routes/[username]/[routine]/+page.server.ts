@@ -20,6 +20,35 @@ const isYoutubeUrl = (value: string): boolean => {
   }
 };
 
+async function getRoutineIdByUsernameAndSlug(
+  supabase: App.Locals['supabase'],
+  username: string,
+  slug: string,
+): Promise<{ id: number }> {
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .single();
+
+  if (!userProfile) {
+    error(404, 'Not Found');
+  }
+
+  const { data: workoutRoutine } = await supabase
+    .from('workout_routines')
+    .select('id')
+    .eq('user_id', userProfile.id)
+    .eq('slug', slug)
+    .single();
+
+  if (!workoutRoutine) {
+    error(404, 'Not Found');
+  }
+
+  return workoutRoutine;
+}
+
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { session } = await safeGetSession();
 
@@ -180,26 +209,7 @@ export const actions: Actions = {
       error(401, 'Unauthorized');
     }
 
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
-
-    const { data: workoutRoutine } = await supabase
-      .from('workout_routines')
-      .select('id')
-      .eq('user_id', userProfile.id)
-      .eq('slug', params.routine)
-      .single();
-
-    if (!workoutRoutine) {
-      error(404, 'Not Found');
-    }
+    const workoutRoutine = await getRoutineIdByUsernameAndSlug(supabase, params.username, params.routine);
 
     const { error: favoriteError } = await supabase
       .from('favorites')
@@ -222,26 +232,7 @@ export const actions: Actions = {
       error(401, 'Unauthorized');
     }
 
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
-
-    const { data: workoutRoutine } = await supabase
-      .from('workout_routines')
-      .select('id')
-      .eq('user_id', userProfile.id)
-      .eq('slug', params.routine)
-      .single();
-
-    if (!workoutRoutine) {
-      error(404, 'Not Found');
-    }
+    const workoutRoutine = await getRoutineIdByUsernameAndSlug(supabase, params.username, params.routine);
 
     const { error: unfavoriteError } = await supabase
       .from('favorites')

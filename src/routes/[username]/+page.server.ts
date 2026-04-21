@@ -9,6 +9,23 @@ type ProfileListItem = {
   avatar_url: string | null;
 };
 
+async function getProfileIdByUsernameOrThrow(
+  supabase: App.Locals['supabase'],
+  username: string,
+): Promise<{ id: string }> {
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .single();
+
+  if (!userProfile) {
+    error(404, 'Not Found');
+  }
+
+  return userProfile;
+}
+
 async function getFollowListByIds(
   supabase: App.Locals['supabase'],
   ids: string[],
@@ -72,14 +89,13 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
   const isOwnProfile = Boolean(session && session.user.id === userProfile.id);
   let isFollowing = false;
   let favoriteRoutines: Array<{ name: string; username: string; href: string }> = [];
-  let numFavoriteRoutines = 0;
 
   const { count: favoriteCount } = await supabase
     .from('favorites')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userProfile.id);
 
-  numFavoriteRoutines = favoriteCount ?? 0;
+  const numFavoriteRoutines = favoriteCount ?? 0;
 
   const { data: favoriteRows } = await supabase
     .from('favorites')
@@ -157,15 +173,7 @@ export const actions: Actions = {
       error(401, 'Unauthorized');
     }
 
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
+    const userProfile = await getProfileIdByUsernameOrThrow(supabase, params.username);
 
     if (session.user.id === userProfile.id) {
       return;
@@ -197,15 +205,7 @@ export const actions: Actions = {
       error(401, 'Unauthorized');
     }
 
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
+    const userProfile = await getProfileIdByUsernameOrThrow(supabase, params.username);
 
     const { error: deleteFollowError } = await supabase
       .from('follows')
@@ -219,15 +219,7 @@ export const actions: Actions = {
   },
 
   followers: async ({ params, locals: { supabase } }) => {
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
+    const userProfile = await getProfileIdByUsernameOrThrow(supabase, params.username);
 
     const { data: followerRows } = await supabase
       .from('follows')
@@ -243,15 +235,7 @@ export const actions: Actions = {
   },
 
   following: async ({ params, locals: { supabase } }) => {
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', params.username)
-      .single();
-
-    if (!userProfile) {
-      error(404, 'Not Found');
-    }
+    const userProfile = await getProfileIdByUsernameOrThrow(supabase, params.username);
 
     const { data: followingRows } = await supabase
       .from('follows')

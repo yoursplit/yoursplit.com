@@ -24,10 +24,10 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 
   const profileForForm = profile
     ? {
-        ...profile,
+        full_name: profile.full_name ?? '',
         username: isDefaultUsername(profile.username) ? '' : profile.username,
       }
-    : profile;
+    : undefined;
 
   return {
     accountForm: await superValidate(profileForForm, zod4(accountFormSchema)),
@@ -56,7 +56,7 @@ export const actions: Actions = {
       id: session.user.id,
       full_name: accountForm.data.full_name,
       username: accountForm.data.username,
-      updated_at: new Date(),
+      updated_at: new Date().toISOString(),
     });
 
     if (updateError) {

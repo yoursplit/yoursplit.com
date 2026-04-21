@@ -25,13 +25,13 @@ export const actions: Actions = {
     }
 
     const { locals: { supabase } } = event;
-    const { data, error: e } = await supabase.auth.signInWithOAuth({
+    const { data, error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${event.url.origin}/auth/callback`,
       }
     });
-    if (e) {
+    if (authError) {
       error(500);
     }
     if (data.url) {

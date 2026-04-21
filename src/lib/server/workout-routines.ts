@@ -1,11 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { WorkoutRoutineCardProps, DayPreview } from '$lib/components/workout-card.svelte';
+import type { WorkoutDifficulty, WorkoutType } from '$lib/constants';
 
 type Filters = {
   user_id?: string;
   user_ids?: string[];
-  workout_type?: string;
-  workout_difficulty?: string;
+  workout_type?: WorkoutType;
+  workout_difficulty?: WorkoutDifficulty;
   routine_ids?: string[];
   limit?: number;
   offset?: number;
