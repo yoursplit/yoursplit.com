@@ -108,6 +108,7 @@
     onUpdate: ({ form: f }) => {
       if (!f.valid) {
         toast.error('Please fix the errors in the form.');
+        console.log(f.data);
       }
     },
     onResult: ({ result }) => {
