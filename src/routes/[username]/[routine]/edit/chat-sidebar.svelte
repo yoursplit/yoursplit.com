@@ -71,17 +71,13 @@
 </script>
 
 <div class="flex flex-col bg-card border rounded-xl shadow-sm overflow-hidden">
-  <div class="p-4 bg-muted/30 {open ? 'border-b' : ''}">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2 font-semibold">
-        <Bot class="w-5 h-5 text-primary" />
-        AI Assistant
-      </div>
-      <Button variant="ghost" size="icon" class="h-7 w-7" onclick={() => open = !open}>
-        <ChevronDownIcon class="w-4 h-4 transition-transform duration-200 {open ? '' : '-rotate-90'}" />
-      </Button>
+  <button type="button" class="p-4 bg-muted/30 {open ? 'border-b' : ''} flex items-center justify-between w-full cursor-pointer hover:bg-muted/50 transition-colors" onclick={() => open = !open}>
+    <div class="flex items-center gap-2 font-semibold">
+      <Bot class="w-5 h-5 text-primary" />
+      AI Assistant
     </div>
-  </div>
+    <ChevronDownIcon class="w-4 h-4 transition-transform duration-200 {open ? '' : '-rotate-90'}" />
+  </button>
 
   {#if open}
   <div class="flex flex-col h-105 lg:h-[calc(100vh-16rem)]" transition:slide={{ duration: 250 }}>
