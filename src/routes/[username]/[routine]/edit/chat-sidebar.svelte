@@ -141,7 +141,7 @@
         placeholder="Type a message..."
         onkeydown={handleKeyDown}
         disabled={isLoading}
-        class="flex-1 min-h-10 max-h-28 resize-y"
+        class="flex-1 min-h-12 max-h-28 resize-y"
       />
       <Button type="submit" size="icon" disabled={isLoading || !inputMessage.trim()}>
         <Send class="w-4 h-4" />
