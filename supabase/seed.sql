@@ -9,7 +9,11 @@ INSERT INTO auth.users (
     raw_app_meta_data,
     raw_user_meta_data,
     created_at,
-    updated_at
+    updated_at,
+    confirmation_token,
+    recovery_token,
+    email_change_token_new,
+    email_change
 ) VALUES (
     '00000000-0000-0000-0000-000000000000',
     '00000000-0000-4000-8000-000000000000',
@@ -21,25 +25,11 @@ INSERT INTO auth.users (
     '{"provider":"email","providers":["email"]}',
     '{"full_name": "User", "avatar_url": ""}',
     now(),
-    now()
-);
-
-INSERT INTO auth.identities (
-    id,
-    user_id,
-    provider_id,
-    identity_data,
-    provider,
-    created_at,
-    updated_at
-) VALUES (
-    gen_random_uuid(),
-    '00000000-0000-4000-8000-000000000000',
-    '00000000-0000-4000-8000-000000000000',
-    jsonb_build_object('sub', '00000000-0000-4000-8000-000000000000', 'email', 'user@example.com'),
-    'email',
     now(),
-    now()
+    '',
+    '',
+    '',
+    ''
 );
 
 UPDATE public.profiles
