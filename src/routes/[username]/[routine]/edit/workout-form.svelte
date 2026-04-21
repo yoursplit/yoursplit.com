@@ -20,6 +20,7 @@
   import { zod4Client } from 'sveltekit-superforms/adapters';
   import type { PageData } from './$types';
   import { workoutFormSchema, type WorkoutFormSchema } from './workout-form-schema';
+  import ChatSidebar from './chat-sidebar.svelte';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
@@ -126,9 +127,10 @@
   const { form: formData, enhance, submitting } = workoutForm;
 </script>
 
-<form class="w-full flex flex-col gap-6 sm:gap-8" method="POST" action="?/save" use:enhance>
-  <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
-    <h2 class="text-xl sm:text-2xl font-semibold">Basic Info</h2>
+<div class="flex flex-col lg:flex-row gap-8 w-full">
+  <form class="flex-1 w-full flex flex-col gap-6 sm:gap-8" method="POST" action="?/save" use:enhance>
+    <div class="flex flex-col gap-4 border rounded-lg p-3 sm:p-4">
+      <h2 class="text-xl sm:text-2xl font-semibold">Basic Info</h2>
 
     <Form.Field form={workoutForm} name="name">
       <Form.Control>
@@ -480,4 +482,9 @@
       </Alert.Description>
     </Alert.Root>
   {/if}
-</form>
+  </form>
+
+  <aside class="w-full lg:w-96 shrink-0 lg:sticky lg:top-8 h-[600px] lg:h-[calc(100vh-8rem)]">
+    <ChatSidebar form={workoutForm} />
+  </aside>
+</div>
