@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const { message, currentData } = await request.json();
 
     const responseSchema = z.object({
-      message: z.string().describe("Friendly message to the user"),
+      message: z.string().describe("Friendly message to the user that explicitly includes a concise summary of what was changed in the routine."),
       formData: workoutFormSchema
     });
     
@@ -23,6 +23,8 @@ export const POST: RequestHandler = async ({ request }) => {
           role: "system", 
           content: `You are an expert AI fitness coach and personal trainer. The user is editing a workout routine. They will provide their goals, current routine data, and instructions on how to optimize it. 
 Your task is to respond with a JSON object representing the update.
+
+      The 'message' must always include a clear "What I changed" summary with specific edits you made (for example: renamed days, added or removed exercises, changed sets/reps, updated notes, adjusted order).
 
 Keep the 'id' fields the same for existing days and exercises if you modify them, omit the 'id' if you are adding new ones. Do NOT change the properties that the user has locked or that shouldn't change unless requested.
 Ensure all outputs strictly conform to a JSON structure without stringified elements.` 
