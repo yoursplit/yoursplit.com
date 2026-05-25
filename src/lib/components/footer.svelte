@@ -9,7 +9,7 @@
 
 <footer class="w-full flex flex-col md:flex-row items-center justify-between gap-4 p-8">
   <div class="flex flex-col md:flex-row items-center gap-4">
-    <Button variant="ghost" size="icon" href="https://github.com/yoursplit/yoursplit.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository">
+    <Button variant="outline" size="icon" href="https://github.com/yoursplit/yoursplit.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository">
       <GitHubIcon />
     </Button>
     <p class="text-sm font-semibold text-center md:text-left text-muted-foreground">
