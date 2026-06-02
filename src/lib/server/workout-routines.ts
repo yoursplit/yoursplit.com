@@ -49,11 +49,12 @@ export async function getSearchMatchedRoutineIds(
   }
 
   const pattern = `%${search}%`;
+  const quotedPattern = `"${pattern.replace(/[\\"]/g, '\\$&')}"`;
   const matchedRoutineIds = new Set<string>();
 
   const [{ data: routinesByName }, { data: profileMatches }, { data: exerciseMatches }] = await Promise.all([
     supabase.from('workout_routines').select('id').ilike('name', pattern),
-    supabase.from('profiles').select('id').or(`username.ilike.${pattern},full_name.ilike.${pattern}`),
+    supabase.from('profiles').select('id').or(`username.ilike.${quotedPattern},full_name.ilike.${quotedPattern}`),
     supabase.from('workout_exercises').select('workout_day_id').ilike('name', pattern),
   ]);
 
