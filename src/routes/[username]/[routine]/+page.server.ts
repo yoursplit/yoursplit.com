@@ -119,7 +119,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 };
 
 export const actions: Actions = {
-  searchDemoVideo: async ({ request, locals: { supabase } }) => {
+  searchDemoVideo: async ({ request, locals: { supabase, safeGetSession } }) => {
+    const { session } = await safeGetSession();
+    if (!session) {
+      error(401, 'Unauthorized');
+    }
+
     const formData = await request.formData();
     const exerciseNameRaw = formData.get('exerciseName');
     const exerciseName = typeof exerciseNameRaw === 'string' ? exerciseNameRaw.trim() : '';
