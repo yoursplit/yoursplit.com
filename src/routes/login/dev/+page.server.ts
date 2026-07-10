@@ -22,6 +22,10 @@ export const load: PageServerLoad = async ({ locals: { safeGetSession } }) => {
 
 export const actions: Actions = {
   default: async (event) => {
+    if (!dev) {
+      error(404, 'Not Found');
+    }
+
     const loginForm = await superValidate(event, zod4(loginFormSchema));
     if (!loginForm.valid) {
       return fail(400, {
