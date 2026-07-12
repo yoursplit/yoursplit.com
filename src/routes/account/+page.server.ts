@@ -63,6 +63,9 @@ export const actions: Actions = {
       if (updateError.code === '23505') {
         return setError(accountForm, 'username', 'Username is already taken');
       }
+      if (updateError.code === '23514') {
+        return setError(accountForm, 'username', 'This username is reserved');
+      }
       error(500);
     }
 

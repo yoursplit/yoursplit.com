@@ -35,6 +35,33 @@ export const ESTIMATED_MINUTES_PER_EXERCISE = 12;
 
 export const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+// Usernames map to top-level `/[username]` routes, so any of these would either
+// shadow (or be shadowed by) a real route or a reserved system path. Keep this
+// list in sync with the `profiles_username_check` DB constraint in
+// supabase/migrations/*_expand_reserved_usernames.sql.
+export const RESERVED_USERNAMES: readonly string[] = [
+  // Current top-level routes
+  'account', 'api', 'auth', 'browse', 'login', 'new', 'privacy', 'terms',
+  // Auth & session flows
+  'signup', 'signin', 'signout', 'logout', 'register', 'callback', 'oauth',
+  'sso', 'verify', 'reset', 'password',
+  // Admin & system
+  'admin', 'settings', 'config', 'dashboard', 'dev', 'internal', 'system', 'root',
+  // Static & infrastructure
+  'static', 'assets', 'public', 'www', 'cdn', 'media', 'files', 'images', 'img',
+  'favicon', 'robots', 'sitemap',
+  // Product & marketing
+  'about', 'help', 'support', 'contact', 'faq', 'pricing', 'blog', 'docs',
+  'status', 'home', 'index', 'explore', 'search', 'feed', 'discover',
+  // User-space aliases
+  'me', 'user', 'users', 'profile', 'profiles',
+  // Legal & meta
+  'legal', 'cookies', 'security',
+] as const;
+
+export const isReservedUsername = (value: string): boolean =>
+  RESERVED_USERNAMES.includes(value.toLowerCase());
+
 export const isWorkoutType = (value: string): value is WorkoutType => WORKOUT_TYPES.includes(value as WorkoutType);
 
 export const isWorkoutDifficulty = (value: string): value is WorkoutDifficulty =>

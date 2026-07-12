@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SLUG_REGEX } from '$lib/constants';
+import { SLUG_REGEX, isReservedUsername } from '$lib/constants';
 
 export const accountFormSchema = z.object({
   full_name: z.string().min(1, 'Display name is required'),
@@ -11,7 +11,8 @@ export const accountFormSchema = z.object({
     .regex(
       SLUG_REGEX,
       'Username must be lowercase and can only include letters, numbers, and single dashes'
-    ),
+    )
+    .refine((value) => !isReservedUsername(value), 'This username is reserved'),
 });
 
 export type AccountFormSchema = typeof accountFormSchema;

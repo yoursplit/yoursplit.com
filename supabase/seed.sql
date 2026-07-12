@@ -33,7 +33,7 @@ INSERT INTO auth.users (
 );
 
 UPDATE public.profiles
-SET username = 'user'
+SET username = 'arnold'
 WHERE id = '00000000-0000-4000-8000-000000000000';
 
 INSERT INTO public.workout_routines (
